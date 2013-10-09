@@ -29,7 +29,7 @@ function translateString(x, y){
  * the element using markup
  */
 
-delegate.bind(document, '[data-zoom-url]', 'click', function(e){
+var bnd = delegate.bind(document, '[data-zoom-url]', 'click', function(e){
   var z = new Zoom(e.target);
   z.show();
 });
@@ -45,6 +45,7 @@ delegate.bind(document, '[data-zoom-url]', 'click', function(e){
  */
 
 module.exports = function(el, url){
+  delegate.unbind(document, 'click', bnd, false);
   if (is.object(el)){
     var zooms = [];
     for (var i = 0; i < el.length; i++){
