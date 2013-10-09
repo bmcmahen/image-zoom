@@ -1,13 +1,13 @@
 <html>
 <head>
-	<title></title>
+  <title></title>
 <script src='build/build.js'></script>
 <link href='build/build.css' rel='stylesheet'>
 
 <style>
 .thumb {
-	width: 175px;
-	margin-left: 520px;
+  width: 175px;
+  margin-left: 520px;
 }
 
 body {
@@ -30,21 +30,7 @@ body {
 <img class='thumb' src='inst6.jpg' data-zoom-url='inst6.jpg'>
 <p> Lorem ipsum In in occaecat ut enim consectetur reprehenderit mollit do Ut labore mollit sed sit sint voluptate id ullamco ad proident aute non commodo sint dolore eiusmod velit non.</p>
 <script>
-var zoom = require('image-zoom');
-var z = new zoom(document.querySelector('img'));
-z.overlay();
-z.on('showing', function(){
-  console.log('showing');
-});
-z.on('shown', function(){
-  console.log('shown');
-});
-z.on('hiding', function(){
-  console.log('hiding');
-});
-z.on('hidden', function(){
-  console.log('hidden');
-});
+require('image-zoom');
 </script>
 
 </body>

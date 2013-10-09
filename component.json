@@ -1,31 +1,6 @@
 {
-  "name": "image-zoom",
-  "repo": "bmcmahen/image-zoom",
-  "description": "zoom a thumbnail to its full size",
-  "version": "0.0.1",
-  "keywords": [],
+  "name": "zoom",
   "dependencies": {
-    "component/classes": "*",
-    "component/emitter": "*",
-    "component/transform-property": "*",
-    "ianstormtaylor/redraw": "*",
-    "component/events": "*",
-    "anthonyshort/after-transition": "*",
-    "ianstormtaylor/is": "*",
-    "bmcmahen/scale-to-bounds": "*",
-    "bmcmahen/viewport": "*",
-    "component/has-translate3d": "*",
-    "eugenicsarchivesca/overlay": "*",
-    "component/delegate": "*"
-  },
-  "development": {},
-  "license": "MIT",
-  "main": "index.js",
-  "scripts": [
-    "index.js"
-  ],
-  "styles": [
-    "image-zoom.css"
-  ],
-  "remotes": []
+   "bmcmahen/image-zoom": "*"
+  }
 }
