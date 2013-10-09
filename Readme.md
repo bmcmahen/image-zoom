@@ -27,7 +27,7 @@ Or you can use the javascript API, like in the example below.
 
 <script>
 var zoom = require('image-zoom');
-var z = new zoom(document.querySelector('img'), 'inst6.jpg');
+var z = zoom(document.querySelector('img'), 'inst6.jpg');
 </script>
 ```
 
@@ -43,7 +43,7 @@ var z = new zoom(document.querySelector('img'), 'inst6.jpg');
 
 ```javascript
 var zoom = require('image-zoom');
-var z = new zoom(document.querySelector('img'), 'inst6.jpg');
+var z = zoom(document.querySelector('img'), 'inst6.jpg');
 z.on('shown', function(){
   // our element is zoomed in
 });
