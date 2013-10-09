@@ -8,6 +8,7 @@ var is = require('is');
 var scale = require('scale-to-bounds');
 var viewport = require('viewport');
 var has3d = require('has-translate3d');
+var overlay = require('overlay');
 
 function translateString(x, y){
   return has3d
@@ -48,6 +49,11 @@ Emitter(Zoom.prototype);
 Zoom.prototype.bind = function(){
   this.events = events(this.thumb, this);
   this.events.bind('click', 'show');
+};
+
+Zoom.prototype.overlay = function(){
+  this._overlay = overlay();
+  return this;
 };
 
 Zoom.prototype.loadImage = function(fn){
@@ -169,6 +175,9 @@ Zoom.prototype.show = function(e){
   var self = this;
   this.loadImage(function(){
     self.emit('showing');
+    if (self._overlay) {
+      self._overlay.show();
+    }
     self.determineZoomedSize();
     self.setOriginalDeminsions();
     self.appendClone();
@@ -184,6 +193,9 @@ Zoom.prototype.hide = function(e){
   this.setOriginalDeminsions();
   var self = this;
   self.emit('hiding');
+  if (self._overlay) {
+    self._overlay.hide();
+  }
   afterTransition.once(self.clone, function(){
     self.clone.parentNode.removeChild(self.clone);
     self.emit('hidden');

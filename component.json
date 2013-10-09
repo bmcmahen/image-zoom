@@ -14,7 +14,8 @@
     "ianstormtaylor/is": "*",
     "bmcmahen/scale-to-bounds": "*",
     "bmcmahen/viewport": "*",
-    "component/has-translate3d": "*"
+    "component/has-translate3d": "*",
+    "eugenicsarchivesca/overlay": "*"
   },
   "development": {},
   "license": "MIT",
