@@ -15,7 +15,8 @@
     "bmcmahen/scale-to-bounds": "*",
     "bmcmahen/viewport": "*",
     "component/has-translate3d": "*",
-    "eugenicsarchivesca/overlay": "*"
+    "eugenicsarchivesca/overlay": "*",
+    "component/delegate": "*"
   },
   "development": {},
   "license": "MIT",

@@ -14,19 +14,37 @@ body {
   margin: 0;
 }
 
+.thumb {
+  cursor: -webkit-zoom-in;
+  cursor: -moz-zoom-in;
+  cursor: -ms-zoom-in;
+  cursor: zoom-in;
+}
 
 </style>
 </head>
 <body>
 
 <h1> some text </h1>
-<img class='thumb' src='inst6.jpg' data-zoom-url='inst6.jpg'>
+<img class='thumb' src='inst6.jpg' data-zoom-url='inst6.jpg' data-zoom-overlay='true'>
 <img class='thumb' src='inst6.jpg' data-zoom-url='inst6.jpg'>
 <p> Lorem ipsum In in occaecat ut enim consectetur reprehenderit mollit do Ut labore mollit sed sit sint voluptate id ullamco ad proident aute non commodo sint dolore eiusmod velit non.</p>
 <script>
 var zoom = require('image-zoom');
-var z = new zoom(document.querySelector('img'));
-z.overlay();
+// var z = new zoom(document.querySelector('img'));
+// z.overlay();
+// z.on('showing', function(){
+//   console.log('showing');
+// });
+// z.on('shown', function(){
+//   console.log('shown');
+// });
+// z.on('hiding', function(){
+//   console.log('hiding');
+// });
+// z.on('hidden', function(){
+//   console.log('hidden');
+// });
 </script>
 
 </body>

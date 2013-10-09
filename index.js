@@ -9,6 +9,14 @@ var scale = require('scale-to-bounds');
 var viewport = require('viewport');
 var has3d = require('has-translate3d');
 var overlay = require('overlay');
+var delegate = require('delegate');
+
+/**
+ * Create the supported translate string.
+ * @param  {Int} x coordinate
+ * @param  {Int} y coordinate
+ * @return {String}
+ */
 
 function translateString(x, y){
   return has3d
@@ -17,9 +25,22 @@ function translateString(x, y){
 }
 
 /**
- * Zoom Constructor
- * @param  {String} src       url of image, or null for no image
- * @param  {Element} container element
+ * Bootstrap-style API that allows designers to invoke zooming
+ * the element using markup
+ */
+
+delegate.bind(document, '[data-zoom-url]', 'click', function(e){
+  var z = new Zoom(e.target);
+  z.show();
+});
+
+
+
+/**
+ * Javascript API. Pass in either an element or list
+ * of elements, plus the optional URL of the image.
+ * @param  {Element} el
+ * @param  {String} url
  * @return {Zoom}
  */
 
@@ -27,34 +48,56 @@ module.exports = function(el, url){
   if (is.object(el)){
     var zooms = [];
     for (var i = 0; i < el.length; i++){
-      zooms.push(new Zoom(el[i]));
+      zooms.push(new Zoom(el[i]).bind());
     }
     return zooms;
   }
-  return new Zoom(el, url);
+  return new Zoom(el, url).bind();
 }
+
+/**
+ * Zoom Constructor
+ * @param {Element} el
+ * @param {String} url
+ */
 
 var Zoom = function(el, url){
   this.thumb = el;
-  classes(this.thumb).add('zoom-original-image');
+  if (this.thumb.getAttribute('data-zoom-overlay')){
+    this.overlay();
+  }
   this.backgroundURL = url;
   this.viewport = {};
-  this.bind();
 };
 
-module.exports = Zoom;
-
 Emitter(Zoom.prototype);
+
+/**
+ * Bind zoom click event.
+ * @return {Zoom}
+ */
 
 Zoom.prototype.bind = function(){
   this.events = events(this.thumb, this);
   this.events.bind('click', 'show');
+  return this;
 };
+
+/**
+ * Enable overlay.
+ * @return {Zoom}
+ */
 
 Zoom.prototype.overlay = function(){
   this._overlay = overlay();
   return this;
 };
+
+/**
+ * While our image is loading, we add a loading
+ * class to our target element.
+ * @param  {Function} fn
+ */
 
 Zoom.prototype.loadImage = function(fn){
   if (this.hasLoaded) return fn();
@@ -183,6 +226,9 @@ Zoom.prototype.show = function(e){
     self.appendClone();
     redraw(self.clone);
     self.setTargetPosition();
+    afterTransition.once(self.clone, function(){
+      self.emit('shown');
+    });
   });
 };
 
