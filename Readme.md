@@ -7,7 +7,16 @@
 
     $ component install bmcmahen/image-zoom
 
-## API
+## Example
+
+```html
+<img class='thumb' src='inst6.jpg' data-zoom-url='inst6.jpg'>
+
+<script>
+var zoom = require('image-zoom');
+var z = new zoom(document.querySelector('img'));
+</script>
+```
 
 
 
