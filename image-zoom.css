@@ -1,0 +1,24 @@
+.zoom-image-clone {
+  position: fixed;
+   -moz-transition: all 0.3s linear;
+  -ms-transition: all 0.3s linear;
+  -webkit-transition: all 0.3s linear;
+  transition: all 0.3s linear;
+  background-size: cover;
+  -moz-transform: translate3d(0,0,0);
+  -ms-transform: translate3d(0,0,0);
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
+  position: fixed;
+  cursor: -webkit-zoom-out;
+  cursor: -moz-zoom-out;
+  cursor: -ms-zoom-out;
+  cursor: zoom-out;
+}
+
+.zoom-original-image {
+  cursor: -webkit-zoom-in;
+  cursor: -moz-zoom-in;
+  cursor: -ms-zoom-in;
+  cursor: zoom-in;
+}

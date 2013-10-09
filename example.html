@@ -1,0 +1,33 @@
+<html>
+<head>
+	<title></title>
+<script src='build/build.js'></script>
+<link href='build/build.css' rel='stylesheet'>
+
+<style>
+img {
+	width: 175px;
+	transition: all .5s linear;
+}
+
+body {
+  margin: 0;
+}
+
+
+</style>
+</head>
+<body>
+
+<br><br><br>
+<img class='thumb' src='inst6.jpg' data-zoom-url='inst6.jpg'>
+
+<script>
+var zoom = require('image-zoom');
+var z = new zoom(document.querySelector('img'));
+console.log(z);
+
+</script>
+
+</body>
+</html>
