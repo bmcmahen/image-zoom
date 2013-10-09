@@ -1,7 +1,7 @@
 
 # image-zoom
 
-  Take a thumbnail, and zoom it to fit the screen. It uses transforms for buttery smoothness, but should still work on older browsers.
+  Take a thumbnail, and zoom it to fit the screen. It uses transforms for buttery smoothness, but should still work on older browsers. [Demo here](http://benmcmahen.com/image-zoom/index.html)
 
 ## Installation
 

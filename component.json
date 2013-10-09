@@ -3,7 +3,7 @@
   "repo": "bmcmahen/image-zoom",
   "description": "zoom a thumbnail to its full size",
   "version": "0.0.1",
-  "keywords": [],
+  "keywords": ["thumbnail", "image", "gallery"],
   "dependencies": {
     "component/classes": "*",
     "component/emitter": "*",
@@ -20,6 +20,7 @@
   },
   "development": {},
   "license": "MIT",
+  "demo": "http://benmcmahen.com/image-zoom/index.html",
   "main": "index.js",
   "scripts": [
     "index.js"
