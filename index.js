@@ -90,7 +90,7 @@ Zoom.prototype.bind = function(){
  */
 
 Zoom.prototype.overlay = function(){
-  this._overlay = overlay();
+  this._overlay = overlay('image-zoom-overlay');
   return this;
 };
 

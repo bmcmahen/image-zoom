@@ -201,11 +201,8 @@ require.relative = function(parent) {
   return localRequire;
 };
 require.register("component-indexof/index.js", function(exports, require, module){
-
-var indexOf = [].indexOf;
-
 module.exports = function(arr, obj){
-  if (indexOf) return arr.indexOf(obj);
+  if (arr.indexOf) return arr.indexOf(obj);
   for (var i = 0; i < arr.length; ++i) {
     if (arr[i] === obj) return i;
   }
@@ -213,7 +210,6 @@ module.exports = function(arr, obj){
 };
 });
 require.register("component-classes/index.js", function(exports, require, module){
-
 /**
  * Module dependencies.
  */
@@ -252,6 +248,7 @@ module.exports = function(el){
  */
 
 function ClassList(el) {
+  if (!el) throw new Error('A DOM element reference is required');
   this.el = el;
   this.list = el.classList;
 }
@@ -358,8 +355,9 @@ ClassList.prototype.toggle = function(name){
  */
 
 ClassList.prototype.array = function(){
-  var arr = this.el.className.split(re);
-  if ('' === arr[0]) arr.pop();
+  var str = this.el.className.replace(/^\s+|\s+$/g, '');
+  var arr = str.split(re);
+  if ('' === arr[0]) arr.shift();
   return arr;
 };
 
@@ -957,149 +955,6 @@ afterTransition.once = function(el, callback) {
 
 module.exports = afterTransition;
 });
-require.register("component-type/index.js", function(exports, require, module){
-
-/**
- * toString ref.
- */
-
-var toString = Object.prototype.toString;
-
-/**
- * Return the type of `val`.
- *
- * @param {Mixed} val
- * @return {String}
- * @api public
- */
-
-module.exports = function(val){
-  switch (toString.call(val)) {
-    case '[object Function]': return 'function';
-    case '[object Date]': return 'date';
-    case '[object RegExp]': return 'regexp';
-    case '[object Arguments]': return 'arguments';
-    case '[object Array]': return 'array';
-    case '[object String]': return 'string';
-  }
-
-  if (val === null) return 'null';
-  if (val === undefined) return 'undefined';
-  if (val && val.nodeType === 1) return 'element';
-  if (val === Object(val)) return 'object';
-
-  return typeof val;
-};
-
-});
-require.register("ianstormtaylor-is-empty/index.js", function(exports, require, module){
-
-/**
- * Expose `isEmpty`.
- */
-
-module.exports = isEmpty;
-
-
-/**
- * Has.
- */
-
-var has = Object.prototype.hasOwnProperty;
-
-
-/**
- * Test whether a value is "empty".
- *
- * @param {Mixed} val
- * @return {Boolean}
- */
-
-function isEmpty (val) {
-  if (null == val) return true;
-  if ('number' == typeof val) return 0 === val;
-  if (undefined !== val.length) return 0 === val.length;
-  for (var key in val) if (has.call(val, key)) return false;
-  return true;
-}
-});
-require.register("ianstormtaylor-is/index.js", function(exports, require, module){
-
-var isEmpty = require('is-empty');
-
-try {
-  var typeOf = require('type');
-} catch (e) {
-  var typeOf = require('component-type');
-}
-
-
-/**
- * Types.
- */
-
-var types = [
-  'arguments',
-  'array',
-  'boolean',
-  'date',
-  'element',
-  'function',
-  'null',
-  'number',
-  'object',
-  'regexp',
-  'string',
-  'undefined'
-];
-
-
-/**
- * Expose type checkers.
- *
- * @param {Mixed} value
- * @return {Boolean}
- */
-
-for (var i = 0, type; type = types[i]; i++) exports[type] = generate(type);
-
-
-/**
- * Add alias for `function` for old browsers.
- */
-
-exports.fn = exports['function'];
-
-
-/**
- * Expose `empty` check.
- */
-
-exports.empty = isEmpty;
-
-
-/**
- * Expose `nan` check.
- */
-
-exports.nan = function (val) {
-  return exports.number(val) && val != val;
-};
-
-
-/**
- * Generate a type checker.
- *
- * @param {String} type
- * @return {Function}
- */
-
-function generate (type) {
-  return function (value) {
-    return type === typeOf(value);
-  };
-}
-});
 require.register("bmcmahen-scale-to-bounds/index.js", function(exports, require, module){
 /**
  * Return the maximum size given a set of bounds
@@ -1163,14 +1018,16 @@ document.body.removeChild(el);
 module.exports = null != val && val.length && 'none' != val;
 
 });
-require.register("eugenicsarchivesca-overlay/index.js", function(exports, require, module){
+require.register("bmcmahen-overlay/index.js", function(exports, require, module){
 
 /**
  * Module dependencies.
  */
 
-var Emitter = require('emitter')
-  , classes = require('classes');
+var Emitter = require('emitter');
+var classes = require('classes');
+var redraw = require('redraw');
+var afterTransition = require('after-transition');
 
 /**
  * Expose `Overlay`.
@@ -1185,10 +1042,11 @@ module.exports = Overlay;
  * @api public
  */
 
-function Overlay(options) {
-  if (!(this instanceof Overlay)) return new Overlay(options);
-  options || (options = {});
-  this.duration = options.duration || 300;
+function Overlay(className) {
+  if (!(this instanceof Overlay)) return new Overlay();
+  this.el = document.createElement('div');
+  if (className) classes(this.el).add(className);
+  this.el.id = 'overlay';
 }
 
 /**
@@ -1207,49 +1065,39 @@ Emitter(Overlay.prototype);
  */
 
 Overlay.prototype.show = function(){
-  if (this.el) return;
-  this.el = document.createElement('div');
-  this.el.className = 'hide';
-  this.el.id = 'overlay';
   document.getElementsByTagName('body')[0].appendChild(this.el);
   this.emit('show');
+  redraw(this.el);
   var self = this;
-  setTimeout(function(){
-    classes(self.el).remove('hide');
-  }, 0);
+  afterTransition.once(this.el, function(){
+    self.emit('shown');
+  });
+  classes(this.el).add('show');
   return this;
 };
 
 /**
  * Hide the overlay.
  *
- * Emits "hide" event.
+ * Emits "hide" event, and "hidden" when finished.
  *
  * @return {Overlay}
  * @api public
  */
 
 Overlay.prototype.hide = function(){
-  this.emit('hide');
-  return this.remove();
-};
-
-/**
- * Remove the overlay from the DOM
- * Emits 'close' event.
- */
-
-Overlay.prototype.remove = function(){
   if (!this.el) return;
+  this.emit('hide');
   var self = this;
-  classes(this.el).add('hide');
-  setTimeout(function(){
-    self.emit('close');
+  afterTransition.once(this.el, function(){
+    self.emit('hidden');
     self.el.parentNode.removeChild(self.el);
-    delete self.el;
-  }, this.duration);
+  });
+  classes(this.el).remove('show');
   return this;
 };
+
+
 
 });
 require.register("component-query/index.js", function(exports, require, module){
@@ -1293,7 +1141,7 @@ var proto = Element.prototype;
  * Vendor function.
  */
 
-var vendor = proto.matchesSelector
+var vendor = proto.matches
   || proto.webkitMatchesSelector
   || proto.mozMatchesSelector
   || proto.msMatchesSelector
@@ -1389,6 +1237,60 @@ exports.unbind = function(el, type, fn, capture){
 };
 
 });
+require.register("javve-get-attribute/index.js", function(exports, require, module){
+/**
+ * Return the value for `attr` at `element`.
+ *
+ * @param {Element} el
+ * @param {String} attr
+ * @api public
+ */
+
+module.exports = function(el, attr) {
+  var result = (el.getAttribute && el.getAttribute(attr)) || null;
+  if( !result ) {
+    var attrs = el.attributes;
+    var length = attrs.length;
+    for(var i = 0; i < length; i++) {
+      if (attr[i] !== undefined) {
+        if(attr[i].nodeName === attr) {
+          result = attr[i].nodeValue;
+        }
+      }
+    }
+  }
+  return result;
+}
+});
+require.register("bmcmahen-target/index.js", function(exports, require, module){
+module.exports = function(e){
+  e = e || window.event;
+  return e.target || e.srcElement;
+};
+});
+require.register("yields-prevent/index.js", function(exports, require, module){
+
+/**
+ * prevent default on the given `e`.
+ * 
+ * examples:
+ * 
+ *      anchor.onclick = prevent;
+ *      anchor.onclick = function(e){
+ *        if (something) return prevent(e);
+ *      };
+ * 
+ * @param {Event} e
+ */
+
+module.exports = function(e){
+  e = e || window.event
+  return e.preventDefault
+    ? e.preventDefault()
+    : e.returnValue = false;
+};
+
+});
 require.register("image-zoom/index.js", function(exports, require, module){
 var Emitter = require('emitter');
 var classes = require('classes');
@@ -1396,12 +1298,14 @@ var transform = require('transform-property');
 var redraw = require('redraw');
 var events = require('events');
 var afterTransition = require('after-transition');
-var is = require('is');
 var scale = require('scale-to-bounds');
 var viewport = require('viewport');
 var has3d = require('has-translate3d');
 var overlay = require('overlay');
 var delegate = require('delegate');
+var attr = require('get-attribute');
+var target = require('target');
+var prevent = require('prevent');
 
 /**
  * Create the supported translate string.
@@ -1421,9 +1325,8 @@ function translateString(x, y){
  * the element using markup
  */
 
-var bnd = delegate.bind(document, '[data-zoom-url]', 'click', function(e){
-  var z = new Zoom(e.target);
-  z.show();
+var zoomListener = delegate.bind(document, '[data-zoom-url]', 'click', function(e){
+  new Zoom(target(e)).show();
 });
 
 
@@ -1437,8 +1340,8 @@ var bnd = delegate.bind(document, '[data-zoom-url]', 'click', function(e){
  */
 
 module.exports = function(el, url){
-  delegate.unbind(document, 'click', bnd, false);
-  if (is.object(el)){
+  delegate.unbind(document, 'click', zoomListener, false);
+  if (typeof el == 'object'){
     var zooms = [];
     for (var i = 0; i < el.length; i++){
       zooms.push(new Zoom(el[i]).bind());
@@ -1446,7 +1349,7 @@ module.exports = function(el, url){
     return zooms;
   }
   return new Zoom(el, url).bind();
-}
+};
 
 /**
  * Zoom Constructor
@@ -1456,9 +1359,7 @@ module.exports = function(el, url){
 
 var Zoom = function(el, url){
   this.thumb = el;
-  if (this.thumb.getAttribute('data-zoom-overlay')){
-    this.overlay();
-  }
+  if (attr(this.thumb, 'data-zoom-overlay')) this.overlay();
   this.padding();
   this.backgroundURL = url;
   this.viewport = {};
@@ -1483,7 +1384,7 @@ Zoom.prototype.bind = function(){
  */
 
 Zoom.prototype.overlay = function(){
-  this._overlay = overlay();
+  this._overlay = overlay('image-zoom-overlay');
   return this;
 };
 
@@ -1495,7 +1396,7 @@ Zoom.prototype.overlay = function(){
  */
 
 Zoom.prototype.padding = function(num){
-  this._padding = num || this.thumb.getAttribute('data-zoom-padding') || 0;
+  this._padding = num || attr(this.thumb, 'data-zoom-padding') || 0;
   return this;
 };
 
@@ -1538,22 +1439,19 @@ Zoom.prototype.getDimensions = function(fn){
     w : this.thumb.clientWidth,
     h : this.thumb.clientHeight
   };
-  this.src = this.thumb.getAttribute('data-zoom-url') || this.backgroundURL;
+  this.src = attr(this.thumb, 'data-zoom-url') || this.backgroundURL;
   return this;
 };
 
 Zoom.prototype.appendClone = function(){
   classes(this.clone).add('zoom-image-clone');
+  this.docEvents = events(document, this);
+  this.docEvents.bind('click', 'hide');
   this.windowEvents = events(window, this);
   this.windowEvents.bind('resize');
-  this.windowEvents.bind('click', 'hide');
   document.body.appendChild(this.clone);
   return this;
 };
-
-Zoom.prototype.tester = function(e){
-  console.log('hiya');
-}
 
 // Debounce this?
 Zoom.prototype.onresize = function(){
@@ -1561,10 +1459,8 @@ Zoom.prototype.onresize = function(){
   this.updateStyles();
 };
 
-// optional padding?
 Zoom.prototype.determineZoomedSize = function(){
   // image size
-  var clone = this.clone;
   var iw = this.imageWidth;
   var ih = this.imageHeight;
 
@@ -1622,17 +1518,15 @@ Zoom.prototype.setTargetPosition = function(){
 }
 
 Zoom.prototype.show = function(e){
-  if (e) e.preventDefault();
+  if (e) prevent(e);
   this.getDimensions();
   var self = this;
   this.loadImage(function(){
     self.emit('showing');
-    if (self._overlay) {
-      self._overlay.show();
-    }
-    self.determineZoomedSize();
-    self.setOriginalDeminsions();
-    self.appendClone();
+    if (self._overlay) self._overlay.show();
+    self.determineZoomedSize()
+      .setOriginalDeminsions()
+      .appendClone();
     self.thumb.style.opacity = 0;
     redraw(self.clone);
     self.setTargetPosition();
@@ -1643,8 +1537,9 @@ Zoom.prototype.show = function(e){
 };
 
 Zoom.prototype.hide = function(e){
-  if (e) e.preventDefault();
+  if (e) prevent(e);
   this.windowEvents.unbind();
+  this.docEvents.unbind();
   this.setOriginalDeminsions();
   var self = this;
   self.emit('hiding');
@@ -1661,6 +1556,7 @@ Zoom.prototype.hide = function(e){
 
 
 });
+
 
 
 
@@ -1715,12 +1611,6 @@ require.alias("component-indexof/index.js", "component-emitter/deps/indexof/inde
 require.alias("component-event/index.js", "anthonyshort-css-emitter/deps/event/index.js");
 
 require.alias("anthonyshort-after-transition/index.js", "anthonyshort-after-transition/index.js");
-require.alias("ianstormtaylor-is/index.js", "image-zoom/deps/is/index.js");
-require.alias("ianstormtaylor-is/index.js", "is/index.js");
-require.alias("component-type/index.js", "ianstormtaylor-is/deps/type/index.js");
-
-require.alias("ianstormtaylor-is-empty/index.js", "ianstormtaylor-is/deps/is-empty/index.js");
-
 require.alias("bmcmahen-scale-to-bounds/index.js", "image-zoom/deps/scale-to-bounds/index.js");
 require.alias("bmcmahen-scale-to-bounds/index.js", "image-zoom/deps/scale-to-bounds/index.js");
 require.alias("bmcmahen-scale-to-bounds/index.js", "scale-to-bounds/index.js");
@@ -1733,13 +1623,27 @@ require.alias("component-has-translate3d/index.js", "image-zoom/deps/has-transla
 require.alias("component-has-translate3d/index.js", "has-translate3d/index.js");
 require.alias("component-transform-property/index.js", "component-has-translate3d/deps/transform-property/index.js");
 
-require.alias("eugenicsarchivesca-overlay/index.js", "image-zoom/deps/overlay/index.js");
-require.alias("eugenicsarchivesca-overlay/index.js", "overlay/index.js");
-require.alias("component-classes/index.js", "eugenicsarchivesca-overlay/deps/classes/index.js");
+require.alias("bmcmahen-overlay/index.js", "image-zoom/deps/overlay/index.js");
+require.alias("bmcmahen-overlay/index.js", "overlay/index.js");
+require.alias("component-classes/index.js", "bmcmahen-overlay/deps/classes/index.js");
 require.alias("component-indexof/index.js", "component-classes/deps/indexof/index.js");
 
-require.alias("component-emitter/index.js", "eugenicsarchivesca-overlay/deps/emitter/index.js");
+require.alias("component-emitter/index.js", "bmcmahen-overlay/deps/emitter/index.js");
 require.alias("component-indexof/index.js", "component-emitter/deps/indexof/index.js");
+
+require.alias("anthonyshort-after-transition/index.js", "bmcmahen-overlay/deps/after-transition/index.js");
+require.alias("anthonyshort-after-transition/index.js", "bmcmahen-overlay/deps/after-transition/index.js");
+require.alias("anthonyshort-has-transitions/index.js", "anthonyshort-after-transition/deps/has-transitions/index.js");
+require.alias("anthonyshort-has-transitions/index.js", "anthonyshort-after-transition/deps/has-transitions/index.js");
+require.alias("anthonyshort-has-transitions/index.js", "anthonyshort-has-transitions/index.js");
+require.alias("anthonyshort-css-emitter/index.js", "anthonyshort-after-transition/deps/css-emitter/index.js");
+require.alias("component-emitter/index.js", "anthonyshort-css-emitter/deps/emitter/index.js");
+require.alias("component-indexof/index.js", "component-emitter/deps/indexof/index.js");
+
+require.alias("component-event/index.js", "anthonyshort-css-emitter/deps/event/index.js");
+
+require.alias("anthonyshort-after-transition/index.js", "anthonyshort-after-transition/index.js");
+require.alias("ianstormtaylor-redraw/index.js", "bmcmahen-overlay/deps/redraw/index.js");
 
 require.alias("component-delegate/index.js", "image-zoom/deps/delegate/index.js");
 require.alias("component-delegate/index.js", "delegate/index.js");
@@ -1750,6 +1654,16 @@ require.alias("component-query/index.js", "component-matches-selector/deps/query
 
 require.alias("discore-closest/index.js", "discore-closest/index.js");
 require.alias("component-event/index.js", "component-delegate/deps/event/index.js");
+
+require.alias("javve-get-attribute/index.js", "image-zoom/deps/get-attribute/index.js");
+require.alias("javve-get-attribute/index.js", "get-attribute/index.js");
+
+require.alias("bmcmahen-target/index.js", "image-zoom/deps/target/index.js");
+require.alias("bmcmahen-target/index.js", "image-zoom/deps/target/index.js");
+require.alias("bmcmahen-target/index.js", "target/index.js");
+require.alias("bmcmahen-target/index.js", "bmcmahen-target/index.js");
+require.alias("yields-prevent/index.js", "image-zoom/deps/prevent/index.js");
+require.alias("yields-prevent/index.js", "prevent/index.js");
 
 require.alias("image-zoom/index.js", "image-zoom/index.js");if (typeof exports == "object") {
   module.exports = require("image-zoom");

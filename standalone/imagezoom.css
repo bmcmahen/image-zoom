@@ -2,29 +2,32 @@
   position: fixed;
   top: 0;
   left: 0;
-  opacity: 1;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,.75);
-  transition: opacity 500ms;
-  -webkit-transition: opacity 500ms;
-  -moz-transition: opacity 500ms;
-  -ms-transition: opacity 500ms;
-  -o-transition: opacity 500ms;
+  background: rgba(0,0,0,.85);
+  transition: opacity 300ms;
+  -webkit-transition: opacity 300ms;
+  -moz-transition: opacity 300ms;
+  -ms-transition: opacity 300ms;
+  -o-transition: opacity 300ms;
   z-index: 500;
-}
-
-#overlay.hide {
   pointer-events: none;
   opacity: 0;
 }
 
+#overlay.show {
+  opacity: 1;
+}
+
+
+
+
 .zoom-image-clone {
   position: fixed;
-  -moz-transition: -moz-transform 0.3s linear;
-  -ms-transition: -ms-transform 0.3s linear;
-  -webkit-transition: -webkit-transform 0.3s linear;
-  transition: transform 0.3s linear;
+  -moz-transition: -moz-transform 0.23s linear;
+  -ms-transition: -ms-transform 0.23s linear;
+  -webkit-transition: -webkit-transform 0.23s linear;
+  transition: transform 0.23s linear;
   z-index: 500;
   cursor: -webkit-zoom-out;
   cursor: -moz-zoom-out;
