@@ -225,6 +225,7 @@ Zoom.prototype.show = function(e){
     self.determineZoomedSize();
     self.setOriginalDeminsions();
     self.appendClone();
+    self.thumb.style.opacity = 0;
     redraw(self.clone);
     self.setTargetPosition();
     afterTransition.once(self.clone, function(){
@@ -244,6 +245,7 @@ Zoom.prototype.hide = function(e){
     self._overlay.hide();
   }
   afterTransition.once(self.clone, function(){
+    self.thumb.style.opacity = 1;
     self.clone.parentNode.removeChild(self.clone);
     self.emit('hidden');
   });
