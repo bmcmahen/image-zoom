@@ -1544,13 +1544,16 @@ Zoom.prototype.getDimensions = function(fn){
 
 Zoom.prototype.appendClone = function(){
   classes(this.clone).add('zoom-image-clone');
-  this.cloneEvents = events(this.clone, this);
-  this.cloneEvents.bind('click', 'hide');
   this.windowEvents = events(window, this);
   this.windowEvents.bind('resize');
+  this.windowEvents.bind('click', 'hide');
   document.body.appendChild(this.clone);
   return this;
 };
+
+Zoom.prototype.tester = function(e){
+  console.log('hiya');
+}
 
 // Debounce this?
 Zoom.prototype.onresize = function(){
@@ -1569,7 +1572,7 @@ Zoom.prototype.determineZoomedSize = function(){
   var vp = viewport();
 
   // zoomed image max size
-  var target = scale(iw, ih, vw - this._padding, vh - this._padding);
+  var target = scale(iw, ih, vp.width - this._padding, vp.height - this._padding);
 
   // determine left & top position of zoomed image
   var left = (vp.width / 2) - (target.width / 2);
@@ -1641,7 +1644,6 @@ Zoom.prototype.show = function(e){
 
 Zoom.prototype.hide = function(e){
   if (e) e.preventDefault();
-  this.cloneEvents.unbind();
   this.windowEvents.unbind();
   this.setOriginalDeminsions();
   var self = this;
