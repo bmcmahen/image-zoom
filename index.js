@@ -55,7 +55,7 @@ module.exports = function(el, url){
     return zooms;
   }
   return new Zoom(el, url).bind();
-}
+};
 
 /**
  * Zoom Constructor
@@ -65,9 +65,7 @@ module.exports = function(el, url){
 
 var Zoom = function(el, url){
   this.thumb = el;
-  if (attr(this.thumb, 'data-zoom-overlay')){
-    this.overlay();
-  }
+  if (attr(this.thumb, 'data-zoom-overlay')) this.overlay();
   this.padding();
   this.backgroundURL = url;
   this.viewport = {};
@@ -167,10 +165,8 @@ Zoom.prototype.onresize = function(){
   this.updateStyles();
 };
 
-// optional padding?
 Zoom.prototype.determineZoomedSize = function(){
   // image size
-  var clone = this.clone;
   var iw = this.imageWidth;
   var ih = this.imageHeight;
 
@@ -233,12 +229,10 @@ Zoom.prototype.show = function(e){
   var self = this;
   this.loadImage(function(){
     self.emit('showing');
-    if (self._overlay) {
-      self._overlay.show();
-    }
-    self.determineZoomedSize();
-    self.setOriginalDeminsions();
-    self.appendClone();
+    if (self._overlay) self._overlay.show();
+    self.determineZoomedSize()
+      .setOriginalDeminsions()
+      .appendClone();
     self.thumb.style.opacity = 0;
     redraw(self.clone);
     self.setTargetPosition();
