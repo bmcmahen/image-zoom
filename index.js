@@ -31,9 +31,8 @@ function translateString(x, y){
  * the element using markup
  */
 
-var bnd = delegate.bind(document, '[data-zoom-url]', 'click', function(e){
-  var z = new Zoom(target(e));
-  z.show();
+var zoomListener = delegate.bind(document, '[data-zoom-url]', 'click', function(e){
+  new Zoom(target(e)).show();
 });
 
 
@@ -47,7 +46,7 @@ var bnd = delegate.bind(document, '[data-zoom-url]', 'click', function(e){
  */
 
 module.exports = function(el, url){
-  delegate.unbind(document, 'click', bnd, false);
+  delegate.unbind(document, 'click', zoomListener, false);
   if (typeof el == 'object'){
     var zooms = [];
     for (var i = 0; i < el.length; i++){
