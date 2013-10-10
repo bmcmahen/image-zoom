@@ -1,9 +1,9 @@
 .zoom-image-clone {
   position: fixed;
-  -moz-transition: -moz-transform 0.3s linear;
-  -ms-transition: -ms-transform 0.3s linear;
-  -webkit-transition: -webkit-transform 0.3s linear;
-  transition: transform 0.3s linear;
+  -moz-transition: -moz-transform 0.23s linear;
+  -ms-transition: -ms-transform 0.23s linear;
+  -webkit-transition: -webkit-transform 0.23s linear;
+  transition: transform 0.23s linear;
   z-index: 500;
   cursor: -webkit-zoom-out;
   cursor: -moz-zoom-out;

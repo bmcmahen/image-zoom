@@ -3,7 +3,11 @@
   "repo": "bmcmahen/image-zoom",
   "description": "zoom a thumbnail to its full size",
   "version": "0.0.1",
-  "keywords": ["thumbnail", "image", "gallery"],
+  "keywords": [
+    "thumbnail",
+    "image",
+    "gallery"
+  ],
   "dependencies": {
     "component/classes": "*",
     "component/emitter": "*",
@@ -16,7 +20,10 @@
     "bmcmahen/viewport": "*",
     "component/has-translate3d": "*",
     "eugenicsarchivesca/overlay": "*",
-    "component/delegate": "*"
+    "component/delegate": "*",
+    "javve/get-attribute": "*",
+    "bmcmahen/target": "*",
+    "yields/prevent": "*"
   },
   "development": {},
   "license": "MIT",

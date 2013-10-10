@@ -4,12 +4,14 @@ var transform = require('transform-property');
 var redraw = require('redraw');
 var events = require('events');
 var afterTransition = require('after-transition');
-var is = require('is');
 var scale = require('scale-to-bounds');
 var viewport = require('viewport');
 var has3d = require('has-translate3d');
 var overlay = require('overlay');
 var delegate = require('delegate');
+var attr = require('get-attribute');
+var target = require('target');
+var prevent = require('prevent');
 
 /**
  * Create the supported translate string.
@@ -30,7 +32,7 @@ function translateString(x, y){
  */
 
 var bnd = delegate.bind(document, '[data-zoom-url]', 'click', function(e){
-  var z = new Zoom(e.target);
+  var z = new Zoom(target(e));
   z.show();
 });
 
@@ -46,7 +48,7 @@ var bnd = delegate.bind(document, '[data-zoom-url]', 'click', function(e){
 
 module.exports = function(el, url){
   delegate.unbind(document, 'click', bnd, false);
-  if (is.object(el)){
+  if (typeof el == 'object'){
     var zooms = [];
     for (var i = 0; i < el.length; i++){
       zooms.push(new Zoom(el[i]).bind());
@@ -64,7 +66,7 @@ module.exports = function(el, url){
 
 var Zoom = function(el, url){
   this.thumb = el;
-  if (this.thumb.getAttribute('data-zoom-overlay')){
+  if (attr(this.thumb, 'data-zoom-overlay')){
     this.overlay();
   }
   this.padding();
@@ -103,7 +105,7 @@ Zoom.prototype.overlay = function(){
  */
 
 Zoom.prototype.padding = function(num){
-  this._padding = num || this.thumb.getAttribute('data-zoom-padding') || 0;
+  this._padding = num || attr(this.thumb, 'data-zoom-padding') || 0;
   return this;
 };
 
@@ -146,22 +148,19 @@ Zoom.prototype.getDimensions = function(fn){
     w : this.thumb.clientWidth,
     h : this.thumb.clientHeight
   };
-  this.src = this.thumb.getAttribute('data-zoom-url') || this.backgroundURL;
+  this.src = attr(this.thumb, 'data-zoom-url') || this.backgroundURL;
   return this;
 };
 
 Zoom.prototype.appendClone = function(){
   classes(this.clone).add('zoom-image-clone');
+  this.docEvents = events(document, this);
+  this.docEvents.bind('click', 'hide');
   this.windowEvents = events(window, this);
   this.windowEvents.bind('resize');
-  this.windowEvents.bind('click', 'hide');
   document.body.appendChild(this.clone);
   return this;
 };
-
-Zoom.prototype.tester = function(e){
-  console.log('hiya');
-}
 
 // Debounce this?
 Zoom.prototype.onresize = function(){
@@ -230,7 +229,7 @@ Zoom.prototype.setTargetPosition = function(){
 }
 
 Zoom.prototype.show = function(e){
-  if (e) e.preventDefault();
+  if (e) prevent(e);
   this.getDimensions();
   var self = this;
   this.loadImage(function(){
@@ -251,8 +250,9 @@ Zoom.prototype.show = function(e){
 };
 
 Zoom.prototype.hide = function(e){
-  if (e) e.preventDefault();
+  if (e) prevent(e);
   this.windowEvents.unbind();
+  this.docEvents.unbind();
   this.setOriginalDeminsions();
   var self = this;
   self.emit('hiding');
