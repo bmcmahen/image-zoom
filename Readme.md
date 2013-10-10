@@ -28,11 +28,21 @@ Or you can use the javascript API, like in the example below.
 <script>
 var zoom = require('image-zoom');
 var z = zoom(document.querySelector('img'), 'inst6.jpg');
+z.overlay(); // enable the overlay
 </script>
 ```
 
-### Zoom.show()
-### Zoom.hide()
+### .show()
+
+Zoom in.
+
+### .hide()
+
+Zoom out.
+
+### .overlay()
+
+Enable the overlay when zooming into the image.
 
 ## Events
 
