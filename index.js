@@ -67,6 +67,7 @@ var Zoom = function(el, url){
   if (this.thumb.getAttribute('data-zoom-overlay')){
     this.overlay();
   }
+  this.padding();
   this.backgroundURL = url;
   this.viewport = {};
 };
@@ -91,6 +92,18 @@ Zoom.prototype.bind = function(){
 
 Zoom.prototype.overlay = function(){
   this._overlay = overlay();
+  return this;
+};
+
+/**
+ * Set padding (or should this be margin?) around the zoomed
+ * image.
+ * @param  {Number} num in pixels
+ * @return {Zoom}
+ */
+
+Zoom.prototype.padding = function(num){
+  this._padding = num || this.thumb.getAttribute('data-zoom-padding') || 0;
   return this;
 };
 
@@ -164,7 +177,7 @@ Zoom.prototype.determineZoomedSize = function(){
   var vp = viewport();
 
   // zoomed image max size
-  var target = scale(iw, ih, vp.width, vp.height);
+  var target = scale(iw, ih, vw - this._padding, vh - this._padding);
 
   // determine left & top position of zoomed image
   var left = (vp.width / 2) - (target.width / 2);
