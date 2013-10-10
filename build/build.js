@@ -597,7 +597,7 @@ require.register("component-event/index.js", function(exports, require, module){
 
 exports.bind = function(el, type, fn, capture){
   if (el.addEventListener) {
-    el.addEventListener(type, fn, capture || false);
+    el.addEventListener(type, fn, capture);
   } else {
     el.attachEvent('on' + type, fn);
   }
@@ -617,7 +617,7 @@ exports.bind = function(el, type, fn, capture){
 
 exports.unbind = function(el, type, fn, capture){
   if (el.removeEventListener) {
-    el.removeEventListener(type, fn, capture || false);
+    el.removeEventListener(type, fn, capture);
   } else {
     el.detachEvent('on' + type, fn);
   }
@@ -1290,7 +1290,7 @@ var proto = Element.prototype;
  * Vendor function.
  */
 
-var vendor = proto.matchesSelector
+var vendor = proto.matches
   || proto.webkitMatchesSelector
   || proto.mozMatchesSelector
   || proto.msMatchesSelector
@@ -1614,6 +1614,7 @@ Zoom.prototype.show = function(e){
     self.determineZoomedSize();
     self.setOriginalDeminsions();
     self.appendClone();
+    self.thumb.style.opacity = 0;
     redraw(self.clone);
     self.setTargetPosition();
     afterTransition.once(self.clone, function(){
@@ -1633,6 +1634,7 @@ Zoom.prototype.hide = function(e){
     self._overlay.hide();
   }
   afterTransition.once(self.clone, function(){
+    self.thumb.style.opacity = 1;
     self.clone.parentNode.removeChild(self.clone);
     self.emit('hidden');
   });
