@@ -30,9 +30,8 @@ var zoom = require('image-zoom');
 var el = dcoument.querySelector('img');
 el.onclick = zoomImage;
 
-function zoomImage(){
-  var thumb = document.querySelector('img');
-  var zoomer = zoom(thumb)
+function zoomImage(e){
+  zoom(e.target)
     .overlay() // enable overlay
     .padding(20) // enable padding of 20. defaults to 0
     .show();
