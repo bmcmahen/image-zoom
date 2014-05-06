@@ -2,13 +2,13 @@ var Emitter = require('emitter');
 var classes = require('classes');
 var transform = require('transform-property');
 var redraw = require('redraw');
-var events = require('events');
 var afterTransition = require('after-transition');
 var scale = require('scale-to-bounds');
 var viewport = require('viewport');
 var has3d = require('has-translate3d');
 var overlay = require('overlay');
 var delegate = require('delegate');
+var events = require('events');
 var attr = require('get-attribute');
 var target = require('target');
 var prevent = require('prevent');
@@ -38,24 +38,13 @@ var zoomListener = delegate.bind(document, '[data-zoom-url]', 'click', function(
 
 
 /**
- * Javascript API. Pass in either an element or list
- * of elements, plus the optional URL of the image.
+ * Javascript API. 
  * @param  {Element} el
  * @param  {String} url
  * @return {Zoom}
  */
 
-module.exports = function(el, url){
-  delegate.unbind(document, 'click', zoomListener, false);
-  if (typeof el == 'object'){
-    var zooms = [];
-    for (var i = 0; i < el.length; i++){
-      zooms.push(new Zoom(el[i]).bind());
-    }
-    return zooms;
-  }
-  return new Zoom(el, url).bind();
-};
+module.exports = exports = Zoom;
 
 /**
  * Zoom Constructor
@@ -63,7 +52,8 @@ module.exports = function(el, url){
  * @param {String} url
  */
 
-var Zoom = function(el, url){
+function Zoom(el, url){
+  if (!(this instanceof Zoom)) return new Zoom(el, url);
   this.thumb = el;
   if (attr(this.thumb, 'data-zoom-overlay')) this.overlay();
   this.padding();
@@ -72,17 +62,6 @@ var Zoom = function(el, url){
 };
 
 Emitter(Zoom.prototype);
-
-/**
- * Bind zoom click event.
- * @return {Zoom}
- */
-
-Zoom.prototype.bind = function(){
-  this.events = events(this.thumb, this);
-  this.events.bind('click', 'show');
-  return this;
-};
 
 /**
  * Enable overlay.
@@ -258,5 +237,9 @@ Zoom.prototype.hide = function(e){
     self.emit('hidden');
   });
   return this;
+};
+
+exports.stopListening = function(){
+  delegate.unbind(document, 'click', zoomListener, false);
 }
 
