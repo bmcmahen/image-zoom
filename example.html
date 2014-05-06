@@ -31,28 +31,28 @@ body {
 <p> Lorem ipsum In in occaecat ut enim consectetur reprehenderit mollit do Ut labore mollit sed sit sint voluptate id ullamco ad proident aute non commodo sint dolore eiusmod velit non.</p>
 <script>
 var zoom = require('image-zoom');
-var el = document.querySelector('img');
-el.onclick = createZoom;
+// var el = document.querySelector('img');
+// el.onclick = createZoom;
 
-function createZoom(){
-  var z = zoom(document.querySelector('img'));
-  z.overlay();
-  z.on('showing', function(){
-    console.log('showing');
-  });
-  z.on('shown', function(){
-    console.log('shown');
-  });
-  z.on('hiding', function(){
-    console.log('hiding');
-  });
-  z.on('hidden', function(){
-    console.log('hidden');
-  });
-  z.show();
-}
+// function createZoom(){
+//   var z = zoom(document.querySelector('img'));
+//   z.overlay();
+//   z.on('showing', function(){
+//     console.log('showing');
+//   });
+//   z.on('shown', function(){
+//     console.log('shown');
+//   });
+//   z.on('hiding', function(){
+//     console.log('hiding');
+//   });
+//   z.on('hidden', function(){
+//     console.log('hidden');
+//   });
+//   z.show();
+// }
 
-zoom.stopListening();
+// zoom.stopListening();
 </script>
 
 </body>

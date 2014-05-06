@@ -27,10 +27,20 @@ Or you can use the javascript API, like in the example below.
 
 <script>
 var zoom = require('image-zoom');
-var thumb = document.querySelector('img');
-var zoomer = zoom(thumb, 'inst6.jpg')
-  .overlay() // enable overlay
-  .padding(20); // enable padding of 20. defaults to 0
+var el = dcoument.querySelector('img');
+el.onclick = zoomImage;
+
+function zoomImage(){
+  var thumb = document.querySelector('img');
+  var zoomer = zoom(thumb)
+    .overlay() // enable overlay
+    .padding(20) // enable padding of 20. defaults to 0
+    .show();
+}
+
+// unbind our delegate listener if we aren't 
+// using the HTML api. 
+zoom.stopListening();
 
 </script>
 ```
