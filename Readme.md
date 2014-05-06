@@ -27,7 +27,9 @@ Or you can use the javascript API, like in the example below.
 
 <script>
 var zoom = require('image-zoom');
-var el = dcoument.querySelector('img');
+
+// listen for clicks
+var el = document.querySelector('img');
 el.onclick = zoomImage;
 
 function zoomImage(e){
