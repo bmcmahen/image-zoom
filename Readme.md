@@ -1,13 +1,17 @@
 
 # image-zoom
 
-  Take a thumbnail, and zoom it to fit the screen. It uses transforms for buttery smoothness, but should still work on older browsers. [Demo here](http://benmcmahen.com/image-zoom/index.html)
+  Zoom an image to full-screen, as seen on Medium.com. It uses transforms for buttery smoothness, but should still work on older browsers. [Demo here](http://benmcmahen.com/image-zoom/index.html)
 
 ## Installation
 
-    $ component install bmcmahen/image-zoom
+  Install using [Duo](http://github.com/duojs/duo)
 
-or use the standalone version in `standalone`, with the global variable `imagezoom`.
+  ```
+  var Zoom = require('bmcmahen/image-zoom');
+  ```
+
+  or use the standalone build in `dist` using the global `Imagezoon`.
 
 ## API
 
@@ -15,9 +19,7 @@ You can use markup (much like Bootstrap) for initiating zoom on certain elements
 
 ```html
 <img class='thumb' src='inst6.jpg' data-zoom-padding='20' data-zoom-url='inst6.jpg' data-zoom-overlay='true'>
-<script>
-var zoom = require('image-zoom');
-</script>
+<script src='imagezoom.js'></script>
 ```
 
 Or you can use the javascript API, like in the example below.
@@ -39,8 +41,8 @@ function zoomImage(e){
     .show();
 }
 
-// unbind our delegate listener if we aren't 
-// using the HTML api. 
+// unbind our delegate listener if we aren't
+// using the HTML api.
 zoom.stopListening();
 
 </script>
@@ -61,6 +63,10 @@ Enable the overlay when zooming into the image.
 ### .padding(num)
 
 Set the padding of the zoomed image.
+
+### .use(plugin)
+
+Use a plugin.
 
 ## Events
 
