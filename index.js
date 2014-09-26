@@ -219,6 +219,7 @@ Zoom.prototype.updateStyles = function(){
   s.height = t.h + 'px';
   s.left = t.x + 'px';
   s.top = t.y + 'px';
+  this.emit('position updated', t);
   return this;
 };
 
