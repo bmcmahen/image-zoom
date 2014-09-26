@@ -1,3 +1,7 @@
+/**
+ * Module dependencies
+ */
+
 var Emitter = require('emitter');
 var classes = require('classes');
 var transform = require('transform-property');
@@ -38,7 +42,7 @@ var zoomListener = delegate.bind(document, '[data-zoom-url]', 'click', function(
 
 
 /**
- * Javascript API. 
+ * Javascript API.
  * @param  {Element} el
  * @param  {String} url
  * @return {Zoom}
@@ -59,7 +63,7 @@ function Zoom(el, url){
   this.padding();
   this.backgroundURL = url;
   this.viewport = {};
-};
+}
 
 Emitter(Zoom.prototype);
 
@@ -76,6 +80,7 @@ Zoom.prototype.overlay = function(){
 /**
  * Set padding (or should this be margin?) around the zoomed
  * image.
+ *
  * @param  {Number} num in pixels
  * @return {Zoom}
  */
@@ -88,6 +93,7 @@ Zoom.prototype.padding = function(num){
 /**
  * While our image is loading, we add a loading
  * class to our target element.
+ *
  * @param  {Function} fn
  */
 
@@ -108,15 +114,35 @@ Zoom.prototype.loadImage = function(fn){
   img.src = this.src;
 };
 
+/**
+ * Add loading class
+ *
+ * @return {Zoom}
+ */
+
 Zoom.prototype.loading = function(){
   classes(this.thumb).add('loading');
+  return this;
 };
+
+/**
+ * Remove loading class
+ *
+ * @return {Zoom}
+ */
 
 Zoom.prototype.finishLoading = function(){
   classes(this.thumb).remove('loading');
+  return this;
 };
 
-Zoom.prototype.getDimensions = function(fn){
+/**
+ * Get image dimensions
+ *
+ * @return {Zoom}
+ */
+
+Zoom.prototype.getDimensions = function(){
   var pos = this.thumb.getBoundingClientRect();
   this.origin = {
     x : pos.left,
@@ -127,6 +153,13 @@ Zoom.prototype.getDimensions = function(fn){
   this.src = attr(this.thumb, 'data-zoom-url') || this.backgroundURL;
   return this;
 };
+
+/**
+ * Append a clone of the image to the DOM in
+ * prep for our zoom animation.
+ *
+ * @return {Zoom}
+ */
 
 Zoom.prototype.appendClone = function(){
   classes(this.clone).add('zoom-image-clone');
@@ -143,6 +176,12 @@ Zoom.prototype.onresize = function(){
   this.determineZoomedSize();
   this.updateStyles();
 };
+
+/**
+ * Determine size of zoomed image
+ *
+ * @return {Zoom}
+ */
 
 Zoom.prototype.determineZoomedSize = function(){
   // image size
@@ -169,6 +208,12 @@ Zoom.prototype.determineZoomedSize = function(){
   return this;
 };
 
+/**
+ * Yodate zoom styles
+ *
+ * @return {Zoom}
+ */
+
 Zoom.prototype.updateStyles = function(){
   var t = this.target;
   var s = this.clone.style;
@@ -176,7 +221,14 @@ Zoom.prototype.updateStyles = function(){
   s.height = t.h + 'px';
   s.left = t.x + 'px';
   s.top = t.y + 'px';
-}
+  return this;
+};
+
+/**
+ * Set original dimensions
+ *
+ * @return {Zoom}
+ */
 
 Zoom.prototype.setOriginalDeminsions = function(){
   var o = this.origin;
@@ -188,19 +240,30 @@ Zoom.prototype.setOriginalDeminsions = function(){
     var translateX = (o.x + (o.w / 2)) - (t.x + (t.w / 2));
     var translateY = (o.y + (o.h / 2)) - (t.y + (t.h / 2));
     var translate3d = translateString(translateX, translateY);
-    var scale = ' scale('+ scale +')';
-    this.clone.style[transform] = translate3d + scale;
+    var scaleProp = ' scale('+ scale +')';
+    this.clone.style[transform] = translate3d + scaleProp;
   }
+
   return this;
 };
 
+/**
+ * Set transition Position
+ * @return {Zoom}
+ */
 
 Zoom.prototype.setTargetPosition = function(){
   if (transform){
     this.clone.style[transform] = translateString(0, 0) + ' scale(1)';
   }
   return this;
-}
+};
+
+/**
+ * Show our zoomed image
+ *
+ * @param  {Event} e
+ */
 
 Zoom.prototype.show = function(e){
   if (e) prevent(e);
@@ -219,7 +282,14 @@ Zoom.prototype.show = function(e){
       self.emit('shown');
     });
   });
+  return this;
 };
+
+/**
+ * Hide our zoomed image
+ * @param  {Event} e
+ * @return {Zoom}
+ */
 
 Zoom.prototype.hide = function(e){
   if (e) prevent(e);
@@ -239,7 +309,10 @@ Zoom.prototype.hide = function(e){
   return this;
 };
 
+/**
+ * Unbind our event listener
+ */
+
 exports.stopListening = function(){
   delegate.unbind(document, 'click', zoomListener, false);
-}
-
+};
