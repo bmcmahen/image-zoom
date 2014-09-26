@@ -88,7 +88,6 @@
  */
 
 var Emitter = require('emitter');
-var classes = require('classes');
 var transform = require('transform-property');
 var redraw = require('redraw');
 var afterTransition = require('after-transition');
@@ -98,9 +97,7 @@ var has3d = require('has-translate3d');
 var overlay = require('overlay');
 var delegate = require('delegate');
 var events = require('events');
-var attr = require('get-attribute');
-var target = require('target');
-var prevent = require('prevent');
+var nextTick = require('next-tick');
 
 /**
  * Create the supported translate string.
@@ -121,7 +118,7 @@ function translateString(x, y){
  */
 
 var zoomListener = delegate.bind(document, '[data-zoom-url]', 'click', function(e){
-  new Zoom(target(e)).show();
+  new Zoom(e.target).show();
 });
 
 
@@ -144,7 +141,7 @@ module.exports = exports = Zoom;
 function Zoom(el, url){
   if (!(this instanceof Zoom)) return new Zoom(el, url);
   this.thumb = el;
-  if (attr(this.thumb, 'data-zoom-overlay')) this.overlay();
+  if (this.thumb.getAttribute('data-zoom-overlay')) this.overlay();
   this.padding();
   this.backgroundURL = url;
   this.viewport = {};
@@ -171,7 +168,7 @@ Zoom.prototype.overlay = function(){
  */
 
 Zoom.prototype.padding = function(num){
-  this._padding = num || attr(this.thumb, 'data-zoom-padding') || 0;
+  this._padding = num || this.thumb.getAttribute('data-zoom-padding') || 0;
   return this;
 };
 
@@ -185,17 +182,16 @@ Zoom.prototype.padding = function(num){
 Zoom.prototype.loadImage = function(fn){
   if (this.hasLoaded) return fn();
   var img = this.clone = new Image();
-  var self = this;
   setTimeout(function(){
-    if (!self.hasLoaded) self.loading();
-  }, 50);
+    if (!this.hasLoaded) this.loading();
+  }.bind(this), 50);
   img.onload = function(){
-    self.hasLoaded = true;
-    self.finishLoading();
-    self.imageWidth = img.width;
-    self.imageHeight = img.height;
+    this.hasLoaded = true;
+    this.finishLoading();
+    this.imageWidth = img.width;
+    this.imageHeight = img.height;
     fn();
-  };
+  }.bind(this);
   img.src = this.src;
 };
 
@@ -206,7 +202,7 @@ Zoom.prototype.loadImage = function(fn){
  */
 
 Zoom.prototype.loading = function(){
-  classes(this.thumb).add('loading');
+  this.thumb.classList.add('loading');
   return this;
 };
 
@@ -217,7 +213,7 @@ Zoom.prototype.loading = function(){
  */
 
 Zoom.prototype.finishLoading = function(){
-  classes(this.thumb).remove('loading');
+  this.thumb.classList.remove('loading');
   return this;
 };
 
@@ -235,7 +231,7 @@ Zoom.prototype.getDimensions = function(){
     w : this.thumb.clientWidth,
     h : this.thumb.clientHeight
   };
-  this.src = attr(this.thumb, 'data-zoom-url') || this.backgroundURL;
+  this.src = this.thumb.getAttribute('data-zoom-url') || this.backgroundURL;
   return this;
 };
 
@@ -247,9 +243,11 @@ Zoom.prototype.getDimensions = function(){
  */
 
 Zoom.prototype.appendClone = function(){
-  classes(this.clone).add('zoom-image-clone');
-  this.docEvents = events(document, this);
-  this.docEvents.bind('click', 'hide');
+  this.clone.classList.add('zoom-image-clone');
+  nextTick(function(){
+    this.docEvents = events(document, this);
+    this.docEvents.bind('click', 'hide');
+  }.bind(this));
   this.windowEvents = events(window, this);
   this.windowEvents.bind('resize');
   document.body.appendChild(this.clone);
@@ -351,22 +349,21 @@ Zoom.prototype.setTargetPosition = function(){
  */
 
 Zoom.prototype.show = function(e){
-  if (e) prevent(e);
+  if (e) e.preventDefault();
   this.getDimensions();
-  var self = this;
   this.loadImage(function(){
-    self.emit('showing');
-    if (self._overlay) self._overlay.show();
-    self.determineZoomedSize()
+    this.emit('showing');
+    if (this._overlay) this._overlay.show();
+    this.determineZoomedSize()
       .setOriginalDeminsions()
       .appendClone();
-    self.thumb.style.opacity = 0;
-    redraw(self.clone);
-    self.setTargetPosition();
-    afterTransition.once(self.clone, function(){
-      self.emit('shown');
-    });
-  });
+    this.thumb.style.opacity = 0;
+    redraw(this.clone);
+    this.setTargetPosition();
+    afterTransition.once(this.clone, function(){
+      this.emit('shown');
+    }.bind(this));
+  }.bind(this));
   return this;
 };
 
@@ -377,20 +374,19 @@ Zoom.prototype.show = function(e){
  */
 
 Zoom.prototype.hide = function(e){
-  if (e) prevent(e);
+  if (e) e.preventDefault();
   this.windowEvents.unbind();
   this.docEvents.unbind();
   this.setOriginalDeminsions();
-  var self = this;
-  self.emit('hiding');
-  if (self._overlay) {
-    self._overlay.hide();
+  this.emit('hiding');
+  if (this._overlay) {
+    this._overlay.hide();
   }
-  afterTransition.once(self.clone, function(){
-    self.thumb.style.opacity = 1;
-    self.clone.parentNode.removeChild(self.clone);
-    self.emit('hidden');
-  });
+  afterTransition.once(this.clone, function(){
+    this.thumb.style.opacity = 1;
+    this.clone.parentNode.removeChild(this.clone);
+    this.emit('hidden');
+  }.bind(this));
   return this;
 };
 
@@ -415,7 +411,7 @@ exports.stopListening = function(){
   delegate.unbind(document, 'click', zoomListener, false);
 };
 
-}, {"emitter":2,"classes":3,"transform-property":4,"redraw":5,"after-transition":6,"scale-to-bounds":7,"viewport":8,"has-translate3d":9,"overlay":10,"delegate":11,"events":12,"get-attribute":13,"target":14,"prevent":15}],
+}, {"emitter":2,"transform-property":3,"redraw":4,"after-transition":5,"scale-to-bounds":6,"viewport":7,"has-translate3d":8,"overlay":9,"delegate":10,"events":11,"next-tick":12}],
 2: [function(require, module, exports) {
 
 /**
@@ -584,6 +580,383 @@ Emitter.prototype.hasListeners = function(event){
 
 }, {}],
 3: [function(require, module, exports) {
+
+var styles = [
+  'webkitTransform',
+  'MozTransform',
+  'msTransform',
+  'OTransform',
+  'transform'
+];
+
+var el = document.createElement('p');
+var style;
+
+for (var i = 0; i < styles.length; i++) {
+  style = styles[i];
+  if (null != el.style[style]) {
+    module.exports = style;
+    break;
+  }
+}
+
+}, {}],
+4: [function(require, module, exports) {
+
+/**
+ * Expose `redraw`.
+ */
+
+module.exports = redraw;
+
+
+/**
+ * Force a redraw on an `el`.
+ *
+ * @param {Element} el
+ */
+
+function redraw (el) {
+  el.offsetHeight;
+}
+}, {}],
+5: [function(require, module, exports) {
+var hasTransitions = require('has-transitions');
+var emitter = require('css-emitter');
+
+function afterTransition(el, callback) {
+  if(hasTransitions(el)) {
+    return emitter(el).bind(callback);
+  }
+  return callback.apply(el);
+};
+
+afterTransition.once = function(el, callback) {
+  afterTransition(el, function fn(){
+    callback.apply(el);
+    emitter(el).unbind(fn);
+  });
+};
+
+module.exports = afterTransition;
+}, {"has-transitions":13,"css-emitter":14}],
+13: [function(require, module, exports) {
+/**
+ * This will store the property that the current
+ * browser uses for transitionDuration
+ */
+var property;
+
+/**
+ * The properties we'll check on an element
+ * to determine if it actually has transitions
+ * We use duration as this is the only property
+ * needed to technically have transitions
+ * @type {Array}
+ */
+var types = [
+  "transitionDuration",
+  "MozTransitionDuration",
+  "webkitTransitionDuration"
+];
+
+/**
+ * Determine the correct property for this browser
+ * just once so we done need to check every time
+ */
+while(types.length) {
+  var type = types.shift();
+  if(type in document.body.style) {
+    property = type;
+  }
+}
+
+/**
+ * Determine if the browser supports transitions or
+ * if an element has transitions at all.
+ * @param  {Element}  el Optional. Returns browser support if not included
+ * @return {Boolean}
+ */
+function hasTransitions(el){
+  if(!property) {
+    return false; // No browser support for transitions
+  }
+  if(!el) {
+    return property != null; // We just want to know if browsers support it
+  }
+  var duration = getComputedStyle(el)[property];
+  return duration !== "" && parseFloat(duration) !== 0; // Does this element have transitions?
+}
+
+module.exports = hasTransitions;
+}, {}],
+14: [function(require, module, exports) {
+/**
+ * Module Dependencies
+ */
+
+var events = require('event');
+
+// CSS events
+
+var watch = [
+  'transitionend'
+, 'webkitTransitionEnd'
+, 'oTransitionEnd'
+, 'MSTransitionEnd'
+, 'animationend'
+, 'webkitAnimationEnd'
+, 'oAnimationEnd'
+, 'MSAnimationEnd'
+];
+
+/**
+ * Expose `CSSnext`
+ */
+
+module.exports = CssEmitter;
+
+/**
+ * Initialize a new `CssEmitter`
+ *
+ */
+
+function CssEmitter(element){
+  if (!(this instanceof CssEmitter)) return new CssEmitter(element);
+  this.el = element;
+}
+
+/**
+ * Bind CSS events.
+ *
+ * @api public
+ */
+
+CssEmitter.prototype.bind = function(fn){
+  for (var i=0; i < watch.length; i++) {
+    events.bind(this.el, watch[i], fn);
+  }
+  return this;
+};
+
+/**
+ * Unbind CSS events
+ * 
+ * @api public
+ */
+
+CssEmitter.prototype.unbind = function(fn){
+  for (var i=0; i < watch.length; i++) {
+    events.unbind(this.el, watch[i], fn);
+  }
+  return this;
+};
+
+/**
+ * Fire callback only once
+ * 
+ * @api public
+ */
+
+CssEmitter.prototype.once = function(fn){
+  var self = this;
+  function on(){
+    self.unbind(on);
+    fn.apply(self.el, arguments);
+  }
+  self.bind(on);
+  return this;
+};
+
+
+}, {"event":15}],
+15: [function(require, module, exports) {
+var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
+    unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
+    prefix = bind !== 'addEventListener' ? 'on' : '';
+
+/**
+ * Bind `el` event `type` to `fn`.
+ *
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
+ */
+
+exports.bind = function(el, type, fn, capture){
+  el[bind](prefix + type, fn, capture || false);
+  return fn;
+};
+
+/**
+ * Unbind `el` event `type`'s callback `fn`.
+ *
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
+ */
+
+exports.unbind = function(el, type, fn, capture){
+  el[unbind](prefix + type, fn, capture || false);
+  return fn;
+};
+}, {}],
+6: [function(require, module, exports) {
+/**
+ * Return the maximum size given a set of bounds
+ * while maintaining the original aspect ratio.
+ * @param  {Number} ow original width
+ * @param  {Number} oh original height
+ * @param  {Number} mw max width
+ * @param  {Number} mh max height
+ * @return {Object}
+ */
+
+module.exports = function(ow, oh, mw, mh){
+  var scale = Math.min(mw / ow, mh / oh);
+  if (scale > 1) scale = 1;
+  return {
+    width : ow * scale,
+    height : oh * scale
+  };
+};
+}, {}],
+7: [function(require, module, exports) {
+
+/**
+ * get the current viewport size
+ * credit goes here: http://stackoverflow.com/a/11744120/1198166
+ * @return {Object} containing width and height
+ */
+
+module.exports = function(){
+  var w = window,
+    d = document,
+    e = d.documentElement,
+    g = d.getElementsByTagName('body')[0];
+
+  return {
+    width: w.innerWidth || e.clientWidth || g.clientWidth,
+    height: w.innerHeight|| e.clientHeight|| g.clientHeight
+  };
+}
+}, {}],
+8: [function(require, module, exports) {
+
+var prop = require('transform-property');
+
+// IE <=8 doesn't have `getComputedStyle`
+if (!prop || !window.getComputedStyle) {
+  module.exports = false;
+
+} else {
+  var map = {
+    webkitTransform: '-webkit-transform',
+    OTransform: '-o-transform',
+    msTransform: '-ms-transform',
+    MozTransform: '-moz-transform',
+    transform: 'transform'
+  };
+
+  // from: https://gist.github.com/lorenzopolidori/3794226
+  var el = document.createElement('div');
+  el.style[prop] = 'translate3d(1px,1px,1px)';
+  document.body.insertBefore(el, null);
+  var val = getComputedStyle(el).getPropertyValue(map[prop]);
+  document.body.removeChild(el);
+  module.exports = null != val && val.length && 'none' != val;
+}
+
+}, {"transform-property":3}],
+9: [function(require, module, exports) {
+
+/**
+ * Module dependencies.
+ */
+
+var Emitter = require('emitter');
+var classes = require('classes');
+var redraw = require('redraw');
+var afterTransition = require('after-transition');
+
+/**
+ * Expose `Overlay`.
+ */
+
+module.exports = Overlay;
+
+/**
+ * Initialize a new `Overlay`.
+ *
+ * @param {Object} options
+ * @api public
+ */
+
+function Overlay(className) {
+  if (!(this instanceof Overlay)) return new Overlay();
+  this.el = document.createElement('div');
+  if (className) classes(this.el).add(className);
+  this.el.id = 'overlay';
+}
+
+/**
+ * Mixin 'Emitter'
+ */
+
+Emitter(Overlay.prototype);
+
+/**
+ * Show the overlay.
+ *
+ * Emits "show" event.
+ *
+ * @return {Overlay}
+ * @api public
+ */
+
+Overlay.prototype.show = function(){
+  document.getElementsByTagName('body')[0].appendChild(this.el);
+  this.emit('show');
+  redraw(this.el);
+  var self = this;
+  afterTransition.once(this.el, function(){
+    self.emit('shown');
+  });
+  classes(this.el).add('show');
+  return this;
+};
+
+/**
+ * Hide the overlay.
+ *
+ * Emits "hide" event, and "hidden" when finished.
+ *
+ * @return {Overlay}
+ * @api public
+ */
+
+Overlay.prototype.hide = function(){
+  if (!this.el) return;
+  this.emit('hide');
+  var self = this;
+  afterTransition.once(this.el, function(){
+    self.emit('hidden');
+    self.el.parentNode.removeChild(self.el);
+  });
+  classes(this.el).remove('show');
+  return this;
+};
+
+
+
+}, {"emitter":2,"classes":16,"redraw":4,"after-transition":5}],
+16: [function(require, module, exports) {
 /**
  * Module dependencies.
  */
@@ -769,8 +1142,8 @@ ClassList.prototype.contains = function(name){
     : !! ~index(this.array(), name);
 };
 
-}, {"indexof":16}],
-16: [function(require, module, exports) {
+}, {"indexof":17}],
+17: [function(require, module, exports) {
 module.exports = function(arr, obj){
   if (arr.indexOf) return arr.indexOf(obj);
   for (var i = 0; i < arr.length; ++i) {
@@ -779,384 +1152,7 @@ module.exports = function(arr, obj){
   return -1;
 };
 }, {}],
-4: [function(require, module, exports) {
-
-var styles = [
-  'webkitTransform',
-  'MozTransform',
-  'msTransform',
-  'OTransform',
-  'transform'
-];
-
-var el = document.createElement('p');
-var style;
-
-for (var i = 0; i < styles.length; i++) {
-  style = styles[i];
-  if (null != el.style[style]) {
-    module.exports = style;
-    break;
-  }
-}
-
-}, {}],
-5: [function(require, module, exports) {
-
-/**
- * Expose `redraw`.
- */
-
-module.exports = redraw;
-
-
-/**
- * Force a redraw on an `el`.
- *
- * @param {Element} el
- */
-
-function redraw (el) {
-  el.offsetHeight;
-}
-}, {}],
-6: [function(require, module, exports) {
-var hasTransitions = require('has-transitions');
-var emitter = require('css-emitter');
-
-function afterTransition(el, callback) {
-  if(hasTransitions(el)) {
-    return emitter(el).bind(callback);
-  }
-  return callback.apply(el);
-};
-
-afterTransition.once = function(el, callback) {
-  afterTransition(el, function fn(){
-    callback.apply(el);
-    emitter(el).unbind(fn);
-  });
-};
-
-module.exports = afterTransition;
-}, {"has-transitions":17,"css-emitter":18}],
-17: [function(require, module, exports) {
-/**
- * This will store the property that the current
- * browser uses for transitionDuration
- */
-var property;
-
-/**
- * The properties we'll check on an element
- * to determine if it actually has transitions
- * We use duration as this is the only property
- * needed to technically have transitions
- * @type {Array}
- */
-var types = [
-  "transitionDuration",
-  "MozTransitionDuration",
-  "webkitTransitionDuration"
-];
-
-/**
- * Determine the correct property for this browser
- * just once so we done need to check every time
- */
-while(types.length) {
-  var type = types.shift();
-  if(type in document.body.style) {
-    property = type;
-  }
-}
-
-/**
- * Determine if the browser supports transitions or
- * if an element has transitions at all.
- * @param  {Element}  el Optional. Returns browser support if not included
- * @return {Boolean}
- */
-function hasTransitions(el){
-  if(!property) {
-    return false; // No browser support for transitions
-  }
-  if(!el) {
-    return property != null; // We just want to know if browsers support it
-  }
-  var duration = getComputedStyle(el)[property];
-  return duration !== "" && parseFloat(duration) !== 0; // Does this element have transitions?
-}
-
-module.exports = hasTransitions;
-}, {}],
-18: [function(require, module, exports) {
-/**
- * Module Dependencies
- */
-
-var events = require('event');
-
-// CSS events
-
-var watch = [
-  'transitionend'
-, 'webkitTransitionEnd'
-, 'oTransitionEnd'
-, 'MSTransitionEnd'
-, 'animationend'
-, 'webkitAnimationEnd'
-, 'oAnimationEnd'
-, 'MSAnimationEnd'
-];
-
-/**
- * Expose `CSSnext`
- */
-
-module.exports = CssEmitter;
-
-/**
- * Initialize a new `CssEmitter`
- *
- */
-
-function CssEmitter(element){
-  if (!(this instanceof CssEmitter)) return new CssEmitter(element);
-  this.el = element;
-}
-
-/**
- * Bind CSS events.
- *
- * @api public
- */
-
-CssEmitter.prototype.bind = function(fn){
-  for (var i=0; i < watch.length; i++) {
-    events.bind(this.el, watch[i], fn);
-  }
-  return this;
-};
-
-/**
- * Unbind CSS events
- * 
- * @api public
- */
-
-CssEmitter.prototype.unbind = function(fn){
-  for (var i=0; i < watch.length; i++) {
-    events.unbind(this.el, watch[i], fn);
-  }
-  return this;
-};
-
-/**
- * Fire callback only once
- * 
- * @api public
- */
-
-CssEmitter.prototype.once = function(fn){
-  var self = this;
-  function on(){
-    self.unbind(on);
-    fn.apply(self.el, arguments);
-  }
-  self.bind(on);
-  return this;
-};
-
-
-}, {"event":19}],
-19: [function(require, module, exports) {
-var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
-    unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
-    prefix = bind !== 'addEventListener' ? 'on' : '';
-
-/**
- * Bind `el` event `type` to `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-exports.bind = function(el, type, fn, capture){
-  el[bind](prefix + type, fn, capture || false);
-  return fn;
-};
-
-/**
- * Unbind `el` event `type`'s callback `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-exports.unbind = function(el, type, fn, capture){
-  el[unbind](prefix + type, fn, capture || false);
-  return fn;
-};
-}, {}],
-7: [function(require, module, exports) {
-/**
- * Return the maximum size given a set of bounds
- * while maintaining the original aspect ratio.
- * @param  {Number} ow original width
- * @param  {Number} oh original height
- * @param  {Number} mw max width
- * @param  {Number} mh max height
- * @return {Object}
- */
-
-module.exports = function(ow, oh, mw, mh){
-  var scale = Math.min(mw / ow, mh / oh);
-  if (scale > 1) scale = 1;
-  return {
-    width : ow * scale,
-    height : oh * scale
-  };
-};
-}, {}],
-8: [function(require, module, exports) {
-
-/**
- * get the current viewport size
- * credit goes here: http://stackoverflow.com/a/11744120/1198166
- * @return {Object} containing width and height
- */
-
-module.exports = function(){
-  var w = window,
-    d = document,
-    e = d.documentElement,
-    g = d.getElementsByTagName('body')[0];
-
-  return {
-    width: w.innerWidth || e.clientWidth || g.clientWidth,
-    height: w.innerHeight|| e.clientHeight|| g.clientHeight
-  };
-}
-}, {}],
-9: [function(require, module, exports) {
-
-var prop = require('transform-property');
-
-// IE <=8 doesn't have `getComputedStyle`
-if (!prop || !window.getComputedStyle) {
-  module.exports = false;
-
-} else {
-  var map = {
-    webkitTransform: '-webkit-transform',
-    OTransform: '-o-transform',
-    msTransform: '-ms-transform',
-    MozTransform: '-moz-transform',
-    transform: 'transform'
-  };
-
-  // from: https://gist.github.com/lorenzopolidori/3794226
-  var el = document.createElement('div');
-  el.style[prop] = 'translate3d(1px,1px,1px)';
-  document.body.insertBefore(el, null);
-  var val = getComputedStyle(el).getPropertyValue(map[prop]);
-  document.body.removeChild(el);
-  module.exports = null != val && val.length && 'none' != val;
-}
-
-}, {"transform-property":4}],
 10: [function(require, module, exports) {
-
-/**
- * Module dependencies.
- */
-
-var Emitter = require('emitter');
-var classes = require('classes');
-var redraw = require('redraw');
-var afterTransition = require('after-transition');
-
-/**
- * Expose `Overlay`.
- */
-
-module.exports = Overlay;
-
-/**
- * Initialize a new `Overlay`.
- *
- * @param {Object} options
- * @api public
- */
-
-function Overlay(className) {
-  if (!(this instanceof Overlay)) return new Overlay();
-  this.el = document.createElement('div');
-  if (className) classes(this.el).add(className);
-  this.el.id = 'overlay';
-}
-
-/**
- * Mixin 'Emitter'
- */
-
-Emitter(Overlay.prototype);
-
-/**
- * Show the overlay.
- *
- * Emits "show" event.
- *
- * @return {Overlay}
- * @api public
- */
-
-Overlay.prototype.show = function(){
-  document.getElementsByTagName('body')[0].appendChild(this.el);
-  this.emit('show');
-  redraw(this.el);
-  var self = this;
-  afterTransition.once(this.el, function(){
-    self.emit('shown');
-  });
-  classes(this.el).add('show');
-  return this;
-};
-
-/**
- * Hide the overlay.
- *
- * Emits "hide" event, and "hidden" when finished.
- *
- * @return {Overlay}
- * @api public
- */
-
-Overlay.prototype.hide = function(){
-  if (!this.el) return;
-  this.emit('hide');
-  var self = this;
-  afterTransition.once(this.el, function(){
-    self.emit('hidden');
-    self.el.parentNode.removeChild(self.el);
-  });
-  classes(this.el).remove('show');
-  return this;
-};
-
-
-
-}, {"emitter":2,"classes":3,"redraw":5,"after-transition":6}],
-11: [function(require, module, exports) {
 /**
  * Module dependencies.
  */
@@ -1200,8 +1196,8 @@ exports.unbind = function(el, type, fn, capture){
   event.unbind(el, type, fn, capture);
 };
 
-}, {"closest":20,"event":19}],
-20: [function(require, module, exports) {
+}, {"closest":18,"event":15}],
+18: [function(require, module, exports) {
 var matches = require('matches-selector')
 
 module.exports = function (element, selector, checkYoSelf, root) {
@@ -1222,8 +1218,8 @@ module.exports = function (element, selector, checkYoSelf, root) {
   }
 }
 
-}, {"matches-selector":21}],
-21: [function(require, module, exports) {
+}, {"matches-selector":19}],
+19: [function(require, module, exports) {
 /**
  * Module dependencies.
  */
@@ -1271,8 +1267,8 @@ function match(el, selector) {
   return false;
 }
 
-}, {"query":22}],
-22: [function(require, module, exports) {
+}, {"query":20}],
+20: [function(require, module, exports) {
 function one(selector, el) {
   return el.querySelector(selector);
 }
@@ -1296,7 +1292,7 @@ exports.engine = function(obj){
 };
 
 }, {}],
-12: [function(require, module, exports) {
+11: [function(require, module, exports) {
 
 /**
  * Module dependencies.
@@ -1474,58 +1470,40 @@ function parse(event) {
   }
 }
 
-}, {"event":19,"delegate":11}],
-13: [function(require, module, exports) {
-/**
- * Return the value for `attr` at `element`.
- *
- * @param {Element} el
- * @param {String} attr
- * @api public
- */
+}, {"event":15,"delegate":10}],
+12: [function(require, module, exports) {
+"use strict"
 
-module.exports = function(el, attr) {
-  var result = (el.getAttribute && el.getAttribute(attr)) || null;
-  if( !result ) {
-    var attrs = el.attributes;
-    var length = attrs.length;
-    for(var i = 0; i < length; i++) {
-      if (attr[i] !== undefined) {
-        if(attr[i].nodeName === attr) {
-          result = attr[i].nodeValue;
-        }
+if (typeof setImmediate == 'function') {
+  module.exports = function(f){ setImmediate(f) }
+}
+// legacy node.js
+else if (typeof process != 'undefined' && typeof process.nextTick == 'function') {
+  module.exports = process.nextTick
+}
+// fallback for other environments / postMessage behaves badly on IE8
+else if (typeof window == 'undefined' || window.ActiveXObject || !window.postMessage) {
+  module.exports = function(f){ setTimeout(f) };
+} else {
+  var q = [];
+
+  window.addEventListener('message', function(){
+    var i = 0;
+    while (i < q.length) {
+      try { q[i++](); }
+      catch (e) {
+        q = q.slice(i);
+        window.postMessage('tic!', '*');
+        throw e;
       }
     }
+    q.length = 0;
+  }, true);
+
+  module.exports = function(fn){
+    if (!q.length) window.postMessage('tic!', '*');
+    q.push(fn);
   }
-  return result;
 }
-}, {}],
-14: [function(require, module, exports) {
-module.exports = function(e){
-  e = e || window.event;
-  return e.target || e.srcElement;
-};
-}, {}],
-15: [function(require, module, exports) {
-
-/**
- * prevent default on the given `e`.
- * 
- * examples:
- * 
- *      anchor.onclick = prevent;
- *      anchor.onclick = function(e){
- *        if (something) return prevent(e);
- *      };
- * 
- * @param {Event} e
- */
-
-module.exports = function(e){
-  e = e || window.event
-  return e.preventDefault
-    ? e.preventDefault()
-    : e.returnValue = false;
-};
 
 }, {}]}, {}, {"1":"Imagezoom"})

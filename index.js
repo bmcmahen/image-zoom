@@ -3,7 +3,6 @@
  */
 
 var Emitter = require('emitter');
-var classes = require('classes');
 var transform = require('transform-property');
 var redraw = require('redraw');
 var afterTransition = require('after-transition');
@@ -13,9 +12,7 @@ var has3d = require('has-translate3d');
 var overlay = require('overlay');
 var delegate = require('delegate');
 var events = require('events');
-var attr = require('get-attribute');
-var target = require('target');
-var prevent = require('prevent');
+var nextTick = require('next-tick');
 
 /**
  * Create the supported translate string.
@@ -36,7 +33,7 @@ function translateString(x, y){
  */
 
 var zoomListener = delegate.bind(document, '[data-zoom-url]', 'click', function(e){
-  new Zoom(target(e)).show();
+  new Zoom(e.target).show();
 });
 
 
@@ -59,7 +56,7 @@ module.exports = exports = Zoom;
 function Zoom(el, url){
   if (!(this instanceof Zoom)) return new Zoom(el, url);
   this.thumb = el;
-  if (attr(this.thumb, 'data-zoom-overlay')) this.overlay();
+  if (this.thumb.getAttribute('data-zoom-overlay')) this.overlay();
   this.padding();
   this.backgroundURL = url;
   this.viewport = {};
@@ -86,7 +83,7 @@ Zoom.prototype.overlay = function(){
  */
 
 Zoom.prototype.padding = function(num){
-  this._padding = num || attr(this.thumb, 'data-zoom-padding') || 0;
+  this._padding = num || this.thumb.getAttribute('data-zoom-padding') || 0;
   return this;
 };
 
@@ -100,17 +97,16 @@ Zoom.prototype.padding = function(num){
 Zoom.prototype.loadImage = function(fn){
   if (this.hasLoaded) return fn();
   var img = this.clone = new Image();
-  var self = this;
   setTimeout(function(){
-    if (!self.hasLoaded) self.loading();
-  }, 50);
+    if (!this.hasLoaded) this.loading();
+  }.bind(this), 50);
   img.onload = function(){
-    self.hasLoaded = true;
-    self.finishLoading();
-    self.imageWidth = img.width;
-    self.imageHeight = img.height;
+    this.hasLoaded = true;
+    this.finishLoading();
+    this.imageWidth = img.width;
+    this.imageHeight = img.height;
     fn();
-  };
+  }.bind(this);
   img.src = this.src;
 };
 
@@ -121,7 +117,7 @@ Zoom.prototype.loadImage = function(fn){
  */
 
 Zoom.prototype.loading = function(){
-  classes(this.thumb).add('loading');
+  this.thumb.classList.add('loading');
   return this;
 };
 
@@ -132,7 +128,7 @@ Zoom.prototype.loading = function(){
  */
 
 Zoom.prototype.finishLoading = function(){
-  classes(this.thumb).remove('loading');
+  this.thumb.classList.remove('loading');
   return this;
 };
 
@@ -150,7 +146,7 @@ Zoom.prototype.getDimensions = function(){
     w : this.thumb.clientWidth,
     h : this.thumb.clientHeight
   };
-  this.src = attr(this.thumb, 'data-zoom-url') || this.backgroundURL;
+  this.src = this.thumb.getAttribute('data-zoom-url') || this.backgroundURL;
   return this;
 };
 
@@ -162,9 +158,11 @@ Zoom.prototype.getDimensions = function(){
  */
 
 Zoom.prototype.appendClone = function(){
-  classes(this.clone).add('zoom-image-clone');
-  this.docEvents = events(document, this);
-  this.docEvents.bind('click', 'hide');
+  this.clone.classList.add('zoom-image-clone');
+  nextTick(function(){
+    this.docEvents = events(document, this);
+    this.docEvents.bind('click', 'hide');
+  }.bind(this));
   this.windowEvents = events(window, this);
   this.windowEvents.bind('resize');
   document.body.appendChild(this.clone);
@@ -266,22 +264,21 @@ Zoom.prototype.setTargetPosition = function(){
  */
 
 Zoom.prototype.show = function(e){
-  if (e) prevent(e);
+  if (e) e.preventDefault();
   this.getDimensions();
-  var self = this;
   this.loadImage(function(){
-    self.emit('showing');
-    if (self._overlay) self._overlay.show();
-    self.determineZoomedSize()
+    this.emit('showing');
+    if (this._overlay) this._overlay.show();
+    this.determineZoomedSize()
       .setOriginalDeminsions()
       .appendClone();
-    self.thumb.style.opacity = 0;
-    redraw(self.clone);
-    self.setTargetPosition();
-    afterTransition.once(self.clone, function(){
-      self.emit('shown');
-    });
-  });
+    this.thumb.style.opacity = 0;
+    redraw(this.clone);
+    this.setTargetPosition();
+    afterTransition.once(this.clone, function(){
+      this.emit('shown');
+    }.bind(this));
+  }.bind(this));
   return this;
 };
 
@@ -292,20 +289,19 @@ Zoom.prototype.show = function(e){
  */
 
 Zoom.prototype.hide = function(e){
-  if (e) prevent(e);
+  if (e) e.preventDefault();
   this.windowEvents.unbind();
   this.docEvents.unbind();
   this.setOriginalDeminsions();
-  var self = this;
-  self.emit('hiding');
-  if (self._overlay) {
-    self._overlay.hide();
+  this.emit('hiding');
+  if (this._overlay) {
+    this._overlay.hide();
   }
-  afterTransition.once(self.clone, function(){
-    self.thumb.style.opacity = 1;
-    self.clone.parentNode.removeChild(self.clone);
-    self.emit('hidden');
-  });
+  afterTransition.once(this.clone, function(){
+    this.thumb.style.opacity = 1;
+    this.clone.parentNode.removeChild(this.clone);
+    this.emit('hidden');
+  }.bind(this));
   return this;
 };
 

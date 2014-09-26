@@ -1,3 +1,6 @@
+## 1.0.0
+- * rely on polyfills for older browsers
+
 ## 0.2.0
 
 - * plugin support
