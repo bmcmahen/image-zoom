@@ -1,3 +1,6 @@
+## 1.1.2
+- * fix component.json to refer to correct style
+
 ## 1.0.0
 - * rely on polyfills for older browsers
 - * fix bug that would prevent show and hide from running multiple times
