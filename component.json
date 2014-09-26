@@ -2,7 +2,7 @@
   "name": "image-zoom",
   "repo": "bmcmahen/image-zoom",
   "description": "zoom a thumbnail to its full size",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "keywords": [
     "thumbnail",
     "image",

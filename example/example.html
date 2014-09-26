@@ -28,11 +28,17 @@ body {
 <script>
 
 Imagezoom.stopListening();
+
 var imgs = document.querySelectorAll('.thumb');
 var zoom = new Imagezoom(imgs[0]);
+var zoom2 = new Imagezoom(imgs[1]).overlay().padding(350);
 
 imgs[0].onclick = function(e){
 	zoom.show();
+};
+
+imgs[1].onclick = function(e){
+	zoom2.show();
 };
 
 </script>

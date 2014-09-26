@@ -87,7 +87,7 @@
  * Module dependencies
  */
 
-var Emitter = require('emitter');
+var emitter = require('emitter');
 var transform = require('transform-property');
 var redraw = require('redraw');
 var afterTransition = require('after-transition');
@@ -147,7 +147,7 @@ function Zoom(el, url){
   this.viewport = {};
 }
 
-Emitter(Zoom.prototype);
+emitter(Zoom.prototype);
 
 /**
  * Enable overlay.
@@ -351,7 +351,8 @@ Zoom.prototype.setTargetPosition = function(){
 Zoom.prototype.show = function(e){
   if (e) e.preventDefault();
   this.getDimensions();
-  this.loadImage(function(){
+
+  function onImageLoad() {
     this.emit('showing');
     if (this._overlay) this._overlay.show();
     this.determineZoomedSize()
@@ -363,7 +364,9 @@ Zoom.prototype.show = function(e){
     afterTransition.once(this.clone, function(){
       this.emit('shown');
     }.bind(this));
-  }.bind(this));
+  }
+
+  this.loadImage(onImageLoad.bind(this));
   return this;
 };
 
