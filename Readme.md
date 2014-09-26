@@ -1,17 +1,17 @@
 
 # image-zoom
 
-  Zoom an image to full-screen, as seen on Medium.com. It uses transforms for buttery smoothness, but should still work on older browsers. [Demo here](http://benmcmahen.com/image-zoom/index.html)
+  Zoom an image to full-screen, as seen on Medium.com. It uses transforms for buttery smoothness, but should still work on older browsers given polyfills for classList. [Demo here](http://benmcmahen.com/image-zoom/index.html)
 
 ## Installation
 
   Install using [Duo](http://github.com/duojs/duo)
 
-  ```
-  var Zoom = require('bmcmahen/image-zoom');
-  ```
+```
+var Zoom = require('bmcmahen/image-zoom');
+```
 
-  or use the standalone build in `dist` using the global `Imagezoon`.
+  or use the standalone build in `dist` using the global `Imagezoom`.
 
 ## API
 
