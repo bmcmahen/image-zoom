@@ -310,6 +310,19 @@ Zoom.prototype.hide = function(e){
 };
 
 /**
+ * Enable plugin usage
+ *
+ * @param  {function} plugin
+ * @param  {Object} options
+ * @return {Zoom}
+ */
+
+Zoom.prototype.use = function(plugin, options){
+  plugin(this, options);
+  return this;
+};
+
+/**
  * Unbind our event listener
  */
 
