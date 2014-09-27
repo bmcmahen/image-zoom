@@ -246,6 +246,7 @@ Zoom.prototype.appendClone = function(){
   this.clone.classList.add('zoom-image-clone');
   nextTick(function(){
     this.docEvents = events(document, this);
+    this.docEvents.bind('touchstart', 'hide');
     this.docEvents.bind('click', 'hide');
   }.bind(this));
   this.windowEvents = events(window, this);
@@ -304,6 +305,7 @@ Zoom.prototype.updateStyles = function(){
   s.height = t.h + 'px';
   s.left = t.x + 'px';
   s.top = t.y + 'px';
+  this.emit('position updated', t);
   return this;
 };
 
@@ -377,7 +379,10 @@ Zoom.prototype.show = function(e){
  */
 
 Zoom.prototype.hide = function(e){
-  if (e) e.preventDefault();
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
   this.windowEvents.unbind();
   this.docEvents.unbind();
   this.setOriginalDeminsions();
