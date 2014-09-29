@@ -41,6 +41,9 @@ imgs[0].onclick = function(e){
 };
 
 imgs[1].onclick = function(e){
+	// stop propagation if we want to retain our HTML api
+	// in other parts of the site.
+	e.stopPropagation();
 	zoom2.show();
 };
 
