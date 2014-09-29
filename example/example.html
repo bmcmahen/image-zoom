@@ -18,6 +18,10 @@ body {
 	max-width: 150px;
 }
 
+.Overlay {
+	background: rgba(255,255,255,0.9);
+}
+
 </style>
 </head>
 <body>
@@ -27,13 +31,12 @@ body {
 <script src='../dist/imagezoom.js'></script>
 <script>
 
-Imagezoom.stopListening();
-
 var imgs = document.querySelectorAll('.thumb');
 var zoom = new Imagezoom(imgs[0]);
 var zoom2 = new Imagezoom(imgs[1]).overlay().padding(350);
 
 imgs[0].onclick = function(e){
+	e.stopPropagation();
 	zoom.show();
 };
 

@@ -1,0 +1,32 @@
+doctype html
+html(lang="en")
+  head
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    title Horizontal Grid Packing Example
+    style.
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #333;
+      }
+
+      img {
+        width: 150px;
+        height: auto;
+        padding: 0;
+        box-sizing: border-box;
+        vertical-align: middle
+      }
+
+
+    link(rel="stylesheet", href="dist/imagezoom.css")
+  body
+    .horizontal-grid-packing
+      for image in images
+        img(
+          src = image.link
+          data-zoom-url= image.link
+          data-zoom-overlay= 'true'
+        )
+      script(src='dist/imagezoom.js')

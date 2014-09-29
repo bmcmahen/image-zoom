@@ -1,0 +1,19 @@
+{
+  "name": "image-zoom",
+  "version": "1.0.0",
+  "description": "image zoom demo page",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bmcmahen/image-zoom.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bmcmahen/image-zoom/issues"
+  },
+  "homepage": "https://github.com/bmcmahen/image-zoom",
+  "devDependencies": {
+    "jade": "^1.7.0",
+    "request": "^2.44.0"
+  }
+}

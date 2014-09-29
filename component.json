@@ -16,7 +16,7 @@
     "bmcmahen/scale-to-bounds": "0.0.1",
     "bmcmahen/viewport": "1.0.0",
     "component/has-translate3d": "0.0.3",
-    "bmcmahen/overlay": "1.0.0",
+    "bmcmahen/overlay": "2.0.1",
     "component/delegate": "0.2.3",
     "component/events": "1.0.9",
     "timoxley/next-tick": "0.0.2"

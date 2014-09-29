@@ -94,7 +94,7 @@ var afterTransition = require('after-transition');
 var scale = require('scale-to-bounds');
 var viewport = require('viewport');
 var has3d = require('has-translate3d');
-var overlay = require('overlay');
+var Overlay = require('overlay');
 var delegate = require('delegate');
 var events = require('events');
 var nextTick = require('next-tick');
@@ -155,7 +155,7 @@ emitter(Zoom.prototype);
  */
 
 Zoom.prototype.overlay = function(){
-  this._overlay = overlay('image-zoom-overlay');
+  this._overlay = new Overlay('image-zoom-overlay');
   return this;
 };
 
@@ -888,8 +888,7 @@ if (!prop || !window.getComputedStyle) {
  * Module dependencies.
  */
 
-var Emitter = require('emitter');
-var classes = require('classes');
+var emitter = require('emitter');
 var redraw = require('redraw');
 var afterTransition = require('after-transition');
 
@@ -909,15 +908,17 @@ module.exports = Overlay;
 function Overlay(className) {
   if (!(this instanceof Overlay)) return new Overlay();
   this.el = document.createElement('div');
-  if (className) classes(this.el).add(className);
-  this.el.id = 'overlay';
+  this.el.className = 'Overlay';
+  if (className) {
+    this.el.classList.add(className);
+  }
 }
 
 /**
  * Mixin 'Emitter'
  */
 
-Emitter(Overlay.prototype);
+emitter(Overlay.prototype);
 
 /**
  * Show the overlay.
@@ -929,14 +930,13 @@ Emitter(Overlay.prototype);
  */
 
 Overlay.prototype.show = function(){
-  document.getElementsByTagName('body')[0].appendChild(this.el);
+  document.body.appendChild(this.el);
   this.emit('show');
   redraw(this.el);
-  var self = this;
   afterTransition.once(this.el, function(){
-    self.emit('shown');
-  });
-  classes(this.el).add('show');
+    this.emit('shown');
+  }.bind(this));
+  this.el.classList.add('show');
   return this;
 };
 
@@ -952,214 +952,15 @@ Overlay.prototype.show = function(){
 Overlay.prototype.hide = function(){
   if (!this.el) return;
   this.emit('hide');
-  var self = this;
   afterTransition.once(this.el, function(){
-    self.emit('hidden');
-    self.el.parentNode.removeChild(self.el);
-  });
-  classes(this.el).remove('show');
+    this.emit('hidden');
+    this.el.parentNode.removeChild(this.el);
+  }.bind(this));
+  this.el.classList.remove('show');
   return this;
 };
 
-
-
-}, {"emitter":2,"classes":16,"redraw":4,"after-transition":5}],
-16: [function(require, module, exports) {
-/**
- * Module dependencies.
- */
-
-var index = require('indexof');
-
-/**
- * Whitespace regexp.
- */
-
-var re = /\s+/;
-
-/**
- * toString reference.
- */
-
-var toString = Object.prototype.toString;
-
-/**
- * Wrap `el` in a `ClassList`.
- *
- * @param {Element} el
- * @return {ClassList}
- * @api public
- */
-
-module.exports = function(el){
-  return new ClassList(el);
-};
-
-/**
- * Initialize a new ClassList for `el`.
- *
- * @param {Element} el
- * @api private
- */
-
-function ClassList(el) {
-  if (!el) throw new Error('A DOM element reference is required');
-  this.el = el;
-  this.list = el.classList;
-}
-
-/**
- * Add class `name` if not already present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.add = function(name){
-  // classList
-  if (this.list) {
-    this.list.add(name);
-    return this;
-  }
-
-  // fallback
-  var arr = this.array();
-  var i = index(arr, name);
-  if (!~i) arr.push(name);
-  this.el.className = arr.join(' ');
-  return this;
-};
-
-/**
- * Remove class `name` when present, or
- * pass a regular expression to remove
- * any which match.
- *
- * @param {String|RegExp} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.remove = function(name){
-  if ('[object RegExp]' == toString.call(name)) {
-    return this.removeMatching(name);
-  }
-
-  // classList
-  if (this.list) {
-    this.list.remove(name);
-    return this;
-  }
-
-  // fallback
-  var arr = this.array();
-  var i = index(arr, name);
-  if (~i) arr.splice(i, 1);
-  this.el.className = arr.join(' ');
-  return this;
-};
-
-/**
- * Remove all classes matching `re`.
- *
- * @param {RegExp} re
- * @return {ClassList}
- * @api private
- */
-
-ClassList.prototype.removeMatching = function(re){
-  var arr = this.array();
-  for (var i = 0; i < arr.length; i++) {
-    if (re.test(arr[i])) {
-      this.remove(arr[i]);
-    }
-  }
-  return this;
-};
-
-/**
- * Toggle class `name`, can force state via `force`.
- *
- * For browsers that support classList, but do not support `force` yet,
- * the mistake will be detected and corrected.
- *
- * @param {String} name
- * @param {Boolean} force
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.toggle = function(name, force){
-  // classList
-  if (this.list) {
-    if ("undefined" !== typeof force) {
-      if (force !== this.list.toggle(name, force)) {
-        this.list.toggle(name); // toggle again to correct
-      }
-    } else {
-      this.list.toggle(name);
-    }
-    return this;
-  }
-
-  // fallback
-  if ("undefined" !== typeof force) {
-    if (!force) {
-      this.remove(name);
-    } else {
-      this.add(name);
-    }
-  } else {
-    if (this.has(name)) {
-      this.remove(name);
-    } else {
-      this.add(name);
-    }
-  }
-
-  return this;
-};
-
-/**
- * Return an array of classes.
- *
- * @return {Array}
- * @api public
- */
-
-ClassList.prototype.array = function(){
-  var str = this.el.className.replace(/^\s+|\s+$/g, '');
-  var arr = str.split(re);
-  if ('' === arr[0]) arr.shift();
-  return arr;
-};
-
-/**
- * Check if class `name` is present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.has =
-ClassList.prototype.contains = function(name){
-  return this.list
-    ? this.list.contains(name)
-    : !! ~index(this.array(), name);
-};
-
-}, {"indexof":17}],
-17: [function(require, module, exports) {
-module.exports = function(arr, obj){
-  if (arr.indexOf) return arr.indexOf(obj);
-  for (var i = 0; i < arr.length; ++i) {
-    if (arr[i] === obj) return i;
-  }
-  return -1;
-};
-}, {}],
+}, {"emitter":2,"redraw":4,"after-transition":5}],
 10: [function(require, module, exports) {
 /**
  * Module dependencies.
@@ -1204,8 +1005,8 @@ exports.unbind = function(el, type, fn, capture){
   event.unbind(el, type, fn, capture);
 };
 
-}, {"closest":18,"event":15}],
-18: [function(require, module, exports) {
+}, {"closest":16,"event":15}],
+16: [function(require, module, exports) {
 var matches = require('matches-selector')
 
 module.exports = function (element, selector, checkYoSelf, root) {
@@ -1226,8 +1027,8 @@ module.exports = function (element, selector, checkYoSelf, root) {
   }
 }
 
-}, {"matches-selector":19}],
-19: [function(require, module, exports) {
+}, {"matches-selector":17}],
+17: [function(require, module, exports) {
 /**
  * Module dependencies.
  */
@@ -1275,8 +1076,8 @@ function match(el, selector) {
   return false;
 }
 
-}, {"query":20}],
-20: [function(require, module, exports) {
+}, {"query":18}],
+18: [function(require, module, exports) {
 function one(selector, el) {
   return el.querySelector(selector);
 }

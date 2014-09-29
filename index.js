@@ -9,7 +9,7 @@ var afterTransition = require('after-transition');
 var scale = require('scale-to-bounds');
 var viewport = require('viewport');
 var has3d = require('has-translate3d');
-var overlay = require('overlay');
+var Overlay = require('overlay');
 var delegate = require('delegate');
 var events = require('events');
 var nextTick = require('next-tick');
@@ -70,7 +70,7 @@ emitter(Zoom.prototype);
  */
 
 Zoom.prototype.overlay = function(){
-  this._overlay = overlay('image-zoom-overlay');
+  this._overlay = new Overlay('image-zoom-overlay');
   return this;
 };
 
