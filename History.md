@@ -1,4 +1,8 @@
-## 1.1.2
+## 1.0.5
+- * no longer prevent default / stop prop on hide event
+- * fallback to using img src if available
+
+## 1.0.2
 - * fix component.json to refer to correct style
 
 ## 1.0.0
