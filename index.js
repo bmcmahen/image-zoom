@@ -146,7 +146,9 @@ Zoom.prototype.getDimensions = function(){
     w : this.thumb.clientWidth,
     h : this.thumb.clientHeight
   };
-  this.src = this.thumb.getAttribute('data-zoom-url') || this.backgroundURL;
+  this.src = this.thumb.getAttribute('data-zoom-url')
+    || this.backgroundURL
+    || this.thumb.src;
   return this;
 };
 
@@ -293,11 +295,7 @@ Zoom.prototype.show = function(e){
  * @return {Zoom}
  */
 
-Zoom.prototype.hide = function(e){
-  if (e) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
+Zoom.prototype.hide = function(){
   this.windowEvents.unbind();
   this.docEvents.unbind();
   this.setOriginalDeminsions();

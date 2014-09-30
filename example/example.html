@@ -27,18 +27,12 @@ body {
 <body>
 
 <img class='thumb' src='inst6.jpg' data-zoom-padding='100' data-zoom-url='inst6.jpg' data-zoom-overlay='true'>
-<img class='thumb' src='inst6.jpg' data-zoom-url='inst6.jpg'>
+<img class='thumb' src='inst6.jpg'>
 <script src='../dist/imagezoom.js'></script>
 <script>
 
 var imgs = document.querySelectorAll('.thumb');
-var zoom = new Imagezoom(imgs[0]);
 var zoom2 = new Imagezoom(imgs[1]).overlay().padding(350);
-
-imgs[0].onclick = function(e){
-	e.stopPropagation();
-	zoom.show();
-};
 
 imgs[1].onclick = function(e){
 	// stop propagation if we want to retain our HTML api
