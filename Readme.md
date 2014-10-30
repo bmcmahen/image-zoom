@@ -1,7 +1,7 @@
 
 # image-zoom
 
-  Zoom an image to full-screen, as seen on Medium.com. It uses transforms for buttery smoothness, but should still work on older browsers given polyfills for classList. [Demo here](http://benmcmahen.com/image-zoom/index.html)
+Zoom an image to full-screen, as seen on Medium.com. It uses transforms for buttery smoothness, but should still work on older browsers given polyfills for classList & bind. [Demo here](http://benmcmahen.com/image-zoom/index.html)
 
 ## Installation
 
@@ -28,18 +28,17 @@ Or you can use the javascript API, like in the example below.
 <img class='thumb' src='inst6.jpg'>
 
 <script>
-var zoom = require('image-zoom');
+var ImageZoom = require('image-zoom');
 
-// listen for clicks
-var el = document.querySelector('img');
-el.onclick = zoomImage;
+var img = document.querySelector('img');
+var zoom = new Imagezoom(img).overlay().padding(350);
 
-function zoomImage(e){
-  zoom(e.target)
-    .overlay() // enable overlay
-    .padding(20) // enable padding of 20. defaults to 0
-    .show();
-}
+img.onclick = function(e){
+  // stop propagation if we want to retain our HTML api
+  // in other parts of the site.
+  e.stopPropagation();
+  zoom2.show();
+};
 
 // unbind our delegate listener if we aren't
 // using the HTML api.
@@ -74,10 +73,11 @@ Use a plugin.
 ### shown
 ### hiding
 ### hidden
+### cancel
 
 ```javascript
 var zoom = require('image-zoom');
-var z = zoom(document.querySelector('img'), 'inst6.jpg');
+var z = zoom(document.querySelector('img'));
 z.on('shown', function(){
   // our element is zoomed in
 });

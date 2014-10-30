@@ -1,3 +1,6 @@
+## 1.1.1
+- * more cleanup for cancel loading. emit hide events still, which is expected of plugins.
+
 ## 1.1.0
 - * add a 'cancel loading' state, which occurs when the user clicks outside of the image while the image is still loading.
 - * emit loading events

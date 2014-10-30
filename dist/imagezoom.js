@@ -406,6 +406,9 @@ Zoom.prototype.hide = function(){
     if (this.docEvents) this.docEvents.unbind();
     this.emit('cancel');
     this.finishLoading();
+    if (this._overlay) this._overlay.hide();
+    this.emit('hiding');
+    this.emit('hidden');
     this.isZoomed = false;
     return;
   }
