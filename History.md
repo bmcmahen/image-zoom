@@ -1,5 +1,6 @@
 ## 1.1.0
 - * add a 'cancel loading' state, which occurs when the user clicks outside of the image while the image is still loading.
+- * emit loading events
 
 ## 1.0.5
 - * no longer prevent default / stop prop on hide event
