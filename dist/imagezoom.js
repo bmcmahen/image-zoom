@@ -202,6 +202,7 @@ Zoom.prototype.loadImage = function(fn){
  */
 
 Zoom.prototype.loading = function(){
+  this.emit('loading', this.thumb);
   this.thumb.classList.add('loading');
   return this;
 };
@@ -213,6 +214,7 @@ Zoom.prototype.loading = function(){
  */
 
 Zoom.prototype.finishLoading = function(){
+  this.emit('end-loading', this.thumb);
   window.clearTimeout(this.loaderTimer);
   this.thumb.classList.remove('loading');
   return this;

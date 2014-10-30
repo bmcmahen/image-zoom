@@ -17,6 +17,7 @@
 .Overlay.show {
   opacity: 1;
 }
+
 .zoom-image-clone {
   position: fixed;
   -moz-transition: -moz-transform 0.23s linear;
@@ -30,7 +31,7 @@
   cursor: zoom-out;
 }
 
-#overlay {
+.Overlay.image-zoom-overlay {
   background-color: white;
   background-color: rgba(255,255,255,0.97);
 }
