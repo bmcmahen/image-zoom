@@ -182,10 +182,10 @@ Zoom.prototype.padding = function(num){
 Zoom.prototype.loadImage = function(fn){
   if (this.hasLoaded) return fn();
   var img = this.clone = new Image();
-  setTimeout(function(){
+  this.loaderTimer = setTimeout(function(){
     if (!this.hasLoaded) this.loading();
   }.bind(this), 50);
-  img.onload = function(){
+  this.clone.onload = function(){
     this.hasLoaded = true;
     this.finishLoading();
     this.imageWidth = img.width;
@@ -213,6 +213,7 @@ Zoom.prototype.loading = function(){
  */
 
 Zoom.prototype.finishLoading = function(){
+  window.clearTimeout(this.loaderTimer);
   this.thumb.classList.remove('loading');
   return this;
 };
@@ -246,18 +247,17 @@ Zoom.prototype.getDimensions = function(){
 
 Zoom.prototype.appendClone = function(){
   this.clone.classList.add('zoom-image-clone');
-  nextTick(function(){
-    this.docEvents = events(document, this);
-    this.docEvents.bind('touchstart', 'hide');
-    this.docEvents.bind('click', 'hide');
-  }.bind(this));
   this.windowEvents = events(window, this);
   this.windowEvents.bind('resize');
   document.body.appendChild(this.clone);
   return this;
 };
 
-// Debounce this?
+/**
+ * On resize handler - recalc position of zoomed
+ * image.
+ */
+
 Zoom.prototype.onresize = function(){
   this.determineZoomedSize();
   this.updateStyles();
@@ -354,9 +354,13 @@ Zoom.prototype.setTargetPosition = function(){
 
 Zoom.prototype.show = function(e){
   if (e) e.preventDefault();
+  if (this.isZoomed || this.isShowing) return;
   this.getDimensions();
+  this.cancelZoom = false;
+  this.isShowing = true;
 
   function onImageLoad() {
+    if (this.cancelZoom) return;
     this.emit('showing');
     if (this._overlay) this._overlay.show();
     this.determineZoomedSize()
@@ -365,10 +369,21 @@ Zoom.prototype.show = function(e){
     this.thumb.style.opacity = 0;
     redraw(this.clone);
     this.setTargetPosition();
+    this.isZoomed = true;
     afterTransition.once(this.clone, function(){
       this.emit('shown');
     }.bind(this));
   }
+
+  // bind these events before the image has loaded, so that
+  // it in effect 'cancels' the load if the user clicks
+  // outside the image while it is loading
+
+  nextTick(function(){
+    this.docEvents = events(document, this);
+    this.docEvents.bind('touchstart', 'hide');
+    this.docEvents.bind('click', 'hide');
+  }.bind(this));
 
   this.loadImage(onImageLoad.bind(this));
   return this;
@@ -381,13 +396,25 @@ Zoom.prototype.show = function(e){
  */
 
 Zoom.prototype.hide = function(){
+  this.isShowing = false;
+
+  // cancel a loading state
+  if (!this.isZoomed) {
+    this.cancelZoom = true;
+    if (this.docEvents) this.docEvents.unbind();
+    this.emit('cancel');
+    this.finishLoading();
+    this.isZoomed = false;
+    return;
+  }
+
+  // hide our zoomed image
   this.windowEvents.unbind();
   this.docEvents.unbind();
   this.setOriginalDeminsions();
   this.emit('hiding');
-  if (this._overlay) {
-    this._overlay.hide();
-  }
+  if (this._overlay) this._overlay.hide();
+  this.isZoomed = false;
   afterTransition.once(this.clone, function(){
     this.thumb.style.opacity = 1;
     this.clone.parentNode.removeChild(this.clone);

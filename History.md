@@ -1,3 +1,6 @@
+## 1.1.0
+- * add a 'cancel loading' state, which occurs when the user clicks outside of the image while the image is still loading.
+
 ## 1.0.5
 - * no longer prevent default / stop prop on hide event
 - * fallback to using img src if available
