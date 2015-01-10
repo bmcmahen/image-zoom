@@ -4,3 +4,4 @@ build
 server.js
 node_modules
 build.js
+./image-zoom.js

@@ -5,7 +5,11 @@ Zoom an image to full-screen, as seen on Medium.com. It uses transforms for butt
 
 ## Installation
 
-  Install using [Duo](http://github.com/duojs/duo)
+  Install using [Duo](http://github.com/duojs/duo) or NPM for use with browserify.
+  
+```
+$ npm install image-zoom
+```
 
 ```
 var Zoom = require('bmcmahen/image-zoom');

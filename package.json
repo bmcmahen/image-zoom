@@ -1,19 +1,24 @@
 {
   "name": "image-zoom",
-  "version": "1.0.0",
-  "description": "image zoom demo page",
+  "version": "1.1.1",
+  "description": "A simple thumbnail viewer, like that found on Medium.com or iOS",
   "repository": {
     "type": "git",
     "url": "https://github.com/bmcmahen/image-zoom.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Ben McMahen",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/bmcmahen/image-zoom/issues"
   },
+  "main": "image-zoom.js",
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "duo -s image-zoom index.js | bfc > image-zoom.js"
+  },
   "homepage": "https://github.com/bmcmahen/image-zoom",
   "devDependencies": {
-    "jade": "^1.7.0",
-    "request": "^2.44.0"
+    "duo": "*",
+    "bfc": "~0.2.0"
   }
 }
