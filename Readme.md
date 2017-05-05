@@ -1,7 +1,9 @@
 
 # image-zoom
 
-Zoom an image to full-screen, as seen on Medium.com. It uses transforms for buttery smoothness, but should still work on older browsers given polyfills for classList & bind. [Demo here](http://bmcmahen.github.io/image-zoom)
+Zoom an image to full-screen, as seen on Medium.com. It uses transforms for buttery smoothness, but should still work on older browsers given polyfills for classList & bind. [Demo here](http://bmcmahen.github.io/image-zoom).
+
+Using React? Try [react-thumbnail-zoom](https://github.com/bmcmahen/react-thumbnail-zoom) instead.
 
 ## Installation
 
